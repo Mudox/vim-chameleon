@@ -23,7 +23,6 @@ function s:cham.init() dict "                 ♫ 2
         \ expand('~/.vim/chameleon')
         \ )
 
-  "let self.cham_dir        = g:rc_root . '/vimrc.d'
   lockvar self.cham_dir
 
   let self.repo_dir        = get(g:, 'mdx_chameleon_bundles_root',
@@ -31,10 +30,10 @@ function s:cham.init() dict "                 ♫ 2
         \ )
   lockvar self.repo_dir
 
-  let self.metas_dir       = self.cham_dir . '/metas.d'
+  let self.metas_dir       = self.cham_dir . '/metas'
   lockvar self.metas_dir
 
-  let self.modes_dir       = self.cham_dir . '/modes.d'
+  let self.modes_dir       = self.cham_dir . '/modes'
   lockvar self.modes_dir
 
   let self.meta_tmpl       = self.cham_dir . '/skel/meta_template'
@@ -43,12 +42,10 @@ function s:cham.init() dict "                 ♫ 2
   let self.mode_tmpl       = self.cham_dir . '/skel/mode_template'
   lockvar self.mode_tmpl
 
-  let self.globals_dir     = self.cham_dir . '/globals.d'
-  lockvar self.globals_dir
-
   let self.manager_avail   = ['Pathogen', 'NeoBundle']
   lockvar self.manager_avail
 
+  " use in :ChamInfo command output.
   let self.prefix          = ' └ '
   lockvar self.prefix
   "♪ 3
@@ -58,9 +55,9 @@ function s:cham.init() dict "                 ♫ 2
 
   let self.manager         = self.neobundle " default
   let self.title           = ''
-  let self.mode_set        = [] " names of sourced modes.d/* files.
+  let self.mode_set        = [] " names of sourced modes/* files.
   let self.modes_duplicate = []
-  let self.meta_set        = [] " names of sourced metas.d/* files.
+  let self.meta_set        = [] " names of sourced metas/* files.
   let self.metas_duplicate = []
 
   " dict to hold config & bundle hierarchy.
@@ -268,7 +265,7 @@ function s:cham.pathogen.init() dict "        ♫ 2
     exe 'set runtimepath+=' . escape(g:rc_root, '\ ') . '/neobundle/pathogen'
   endif
 
-  " exclude those metas not listed in loaded modes.d/* files.
+  " exclude those metas not listed in loaded modes/* files.
   let g:pathogen_disabled = filter(
         \ self.metasAvail(), 'index(self.meta_set, v:val) == -1'
         \ )
@@ -453,7 +450,7 @@ endfunction
 
 " temporary functions                      ♫ 1
 
-" temporary global functions used in modes.d/* to source sub-mode files.
+" temporary global functions used in modes/* to source sub-mode files.
 " since s:cham.loadModes will be called only once on the start, the commands and
 " functions are guaranteed to be defined and deleted properly.
 
