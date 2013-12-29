@@ -431,9 +431,10 @@ endfunction
 
 function s:cham.peekUrl() dict "              ♫ 2
   " currently only support github & bitbucket address.
+  let git_pat       = '\mgit://.\+/.\+\.git'
   let github_pat    = '\m\%(https://github\.com/\|git@github\.com:\)[^/]\+/[^/]\+\.git'
   let bitbucket_pat = '\mhttps://bitbucket\.org/[^/]\+/[^/]\+\%(\.git\)\?'
-  let url_pat = bitbucket_pat . '\|' . github_pat
+  let url_pat = bitbucket_pat . '\|' . github_pat . '\|' . git_pat
 
   for reg in [@", @+, @*, @a]
     let url = matchstr(reg, url_pat)
