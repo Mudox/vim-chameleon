@@ -449,7 +449,7 @@ endfunction
 " }}}2
 " }}}1
 
-" temporary functions                      {{{1
+" intermediate functions                   {{{1
 
 " temporary global functions used in modes/* to source sub-mode files.
 " since s:cham.loadModes will be called only once on the start, the commands and
