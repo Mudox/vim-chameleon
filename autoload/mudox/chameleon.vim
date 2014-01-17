@@ -355,60 +355,66 @@ function s:cham.editMode(arg) dict          " {{{2
     return
   endif
 
-  if len(names) == 0 " Edit current mode.
-    let file_path = self.modes_dir . '/' . self.modeName()
-    "execute mudox#query_open_file#Main() . file_path
-    execute mudox#query_open_file#New(file_path)
-  else " edit a new or existing mode.
-    let file_path = self.modes_dir . '/' . names[0]
+  try
+    if len(names) == 0 " Edit current mode.
+      let file_path = self.modes_dir . '/' . self.modeName()
+      execute mudox#query_open_file#New(file_path)
+    else " edit a new or existing mode.
+      let file_path = self.modes_dir . '/' . names[0]
 
-    if filereadable(file_path)
-      execute mudox#query_open_file#Main() . file_path
-    else
-      " gvie user chance to cancel.
-      try
-        let open_cmd  = mudox#query_open_file#Main()
-      catch
-        return
-      endtry
+      if filereadable(file_path) " edit a existing file.
+        execute mudox#query_open_file#New(file_path)
+      else " edit a new file.
+        " read template content if any.
+        if filereadable(self.mode_tmpl)
+          let tmpl = readfile(self.mode_tmpl)
+        else
+          echohl WarningMsg
+          echo 'Template file [' . self.mode_tmpl
+                \ . "] unreadable"
+          echo "creating an empty mode ..."
+          echohl None
+        endif
 
-      " read template content if any.
-      if filereadable(self.mode_tmpl)
-        let tmpl = readfile(self.mode_tmpl)
-      else
-        echoerr 'Template file [' . self.mode_tmpl . '] unreadable'
-        echoerr "creating an empty mode ..."
-      endif
+        call mudox#query_open_file#New(file_path)
+        setlocal filetype=vim
+        setlocal foldmethod=marker
+        setlocal fileformat=unix
 
-      execute  open_cmd . file_path
-      setlocal filetype=vim
-      setlocal foldmethod=marker
-      setlocal fileformat=unix
-
-      if exists('tmpl')
-        call append(0, tmpl)
-        delete _
+        if exists('tmpl')
+          call append(0, tmpl)
+          delete _
+        endif
       endif
     endif
-  endif
+  catch /^mudox#query_open_file: Canceled$/
+    echohl WarningMsg | echo '* EditMode: Canceled *' | echohl None
+    return
+  endtry
 endfunction
 " }}}2
 
 function s:cham.editMeta(name) dict         " {{{2
   let file_name = self.metas_dir . '/' . a:name
-  let open_cmd  = mudox#query_open_file#Main() " gvie user chance to cancel.
+
+  try
+    let open_cmd  = mudox#query_open_file#New(file_name) " gvie user chance to cancel.
+  catch /^mudox#query_open_file: Canceled$/
+    echohl WarningMsg | echo '* EditMeta: Canceled *' | echohl None
+    return
+  endtry
 
   if !filereadable(file_name)
     " read template content
     if filereadable(self.meta_tmpl)
       let tmpl = readfile(self.meta_tmpl)
     else
-      echoerr 'Mode template file [' . self.meta_tmpl . '] unreadable'
-      echoerr "creating an empty meta ..."
+      echohl WarningMsg
+      echo 'Mode template file [' . self.meta_tmpl . '] unreadable'
+      echo "creating an empty meta ..."
+      echohl None
     endif
   endif
-
-  execute  open_cmd . file_name
 
   " if it is creating a new meta, fill it with appropriate template.
   if exists('tmpl')
