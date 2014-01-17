@@ -357,7 +357,8 @@ function s:cham.editMode(arg) dict          " {{{2
 
   if len(names) == 0 " Edit current mode.
     let file_path = self.modes_dir . '/' . self.modeName()
-    execute mudox#query_open_file#Main() . file_path
+    "execute mudox#query_open_file#Main() . file_path
+    execute mudox#query_open_file#New(file_path)
   else " edit a new or existing mode.
     let file_path = self.modes_dir . '/' . names[0]
 
@@ -365,7 +366,11 @@ function s:cham.editMode(arg) dict          " {{{2
       execute mudox#query_open_file#Main() . file_path
     else
       " gvie user chance to cancel.
-      let open_cmd  = mudox#query_open_file#Main()
+      try
+        let open_cmd  = mudox#query_open_file#Main()
+      catch
+        return
+      endtry
 
       " read template content if any.
       if filereadable(self.mode_tmpl)
