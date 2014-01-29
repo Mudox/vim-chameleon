@@ -1,9 +1,11 @@
 " vim: foldmethod=marker
 
-if exists("loaded_mdx_chameleon_vim") || &cp || version < 700
-  finish
+if exists("s:loaded") || &cp || version < 700
+    finish
 endif
-let loaded_mdx_chameleon_vim = 1
+let s:loaded = 1
+
+scriptencoding utf8
 
 let s:cham                 = {}
 
@@ -305,7 +307,10 @@ function s:cham.info() dict                 " {{{2
 
   echohl Delimiter
   echon '-'
-  for n in range(&columns - 38) | echon '-' | endfor
+  for n in range(&columns - 38)
+    echon '-'
+    let n = n " depress vimlint complaining.
+  endfor
 
   echohl Number
   echon printf(" in %2d ", len(self.mode_set))
@@ -398,7 +403,7 @@ function s:cham.editMeta(name) dict         " {{{2
   let file_name = self.metas_dir . '/' . a:name
 
   try
-    let open_cmd  = mudox#query_open_file#New(file_name) " gvie user chance to cancel.
+    call mudox#query_open_file#New(file_name) " gvie user chance to cancel.
   catch /^mudox#query_open_file: Canceled$/
     echohl WarningMsg | echo '* EditMeta: Canceled *' | echohl None
     return
@@ -527,7 +532,8 @@ command -nargs=1 -complete=custom,<SID>MetasAvail EditMeta
       \ call s:cham.editMeta(<q-args>)
 nnoremap <Enter>b :EditMeta<Space>
 
-function <SID>MetasAvail(arglead, cmdline, cursorpos)
+"function <SID>MetasAvail(arglead, cmdline, cursorpos)
+function <SID>MetasAvail()
   return join(s:cham.metasAvail(), "\n")
 endfunction
 
@@ -538,7 +544,7 @@ command -nargs=* -complete=custom,<SID>modesAvail EditMode
       \ call s:cham.editMode(<q-args>)
 nnoremap <Enter>c :EditMode<Space>
 
-function <SID>modesAvail(arglead, cmdline, cursorpos)
+function <SID>modesAvail()
   return join(s:cham.modesAvail(), "\n")
 endfunction
 
