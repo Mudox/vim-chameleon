@@ -312,7 +312,7 @@ function s:cham.info() dict                 " {{{2
   echon '-'
   for n in range(&columns - 38)
     echon '-'
-    let n = n " depress vimlint complaining.
+    let n = n " suppres vimlint complaining.
   endfor
 
   echohl Number
