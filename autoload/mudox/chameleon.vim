@@ -24,7 +24,6 @@ function s:cham.init() dict                 " {{{2
   let self.cham_dir        = get(g:, 'mdx_chameleon_root',
         \ expand('~/.vim/chameleon')
         \ )
-
   lockvar self.cham_dir
 
   let self.repo_dir        = get(g:, 'mdx_chameleon_bundles_root',
@@ -46,6 +45,10 @@ function s:cham.init() dict                 " {{{2
 
   let self.manager_avail   = ['Pathogen', 'NeoBundle']
   lockvar self.manager_avail
+
+  let self.mode_name       = 'vim_dev' " failsafe
+  call self.initModeName()
+  lockvar self.mode_name
 
   " use in :ChamInfo command output.
   let self.prefix          = ' └ '
@@ -78,7 +81,7 @@ function s:cham.init() dict                 " {{{2
 endfunction
 " }}}2
 
-function s:cham.modeName() dict             " {{{2
+function s:cham.initModeName() dict             " {{{2
   " check if the appropriate environment variable has valid value.
 
   let name = readfile(self.cham_dir . '/cur_mode')[0]
@@ -86,7 +89,7 @@ function s:cham.modeName() dict             " {{{2
     throw 'Invalid mode name in ' . self.cham_dir . '/cur_mode'
   endif
 
-  return name
+  let self.mode_name = name
 endfunction
 " }}}2
 
@@ -152,7 +155,7 @@ function s:cham.loadMode() dict             " {{{2
   " temporary pointer tracing current sub tree during traversal.
   let self.tree_ptr = self.tree
 
-  execute 'source ' . self.modes_dir . '/' . self.modeName()
+  execute 'source ' . self.modes_dir . '/' . self.mode_name
 
   " lock
   lockvar  self.title
@@ -291,7 +294,7 @@ function s:cham.info() dict                 " {{{2
   echohl Title
   echon printf("%-14s ", 'Mode file:')
   echohl Identifier
-  echon printf("%s\n", self.modeName())
+  echon printf("%s\n", self.mode_name)
 
   " bundle manager name
   echohl Title
@@ -362,7 +365,7 @@ function s:cham.editMode(arg) dict          " {{{2
 
   try
     if len(names) == 0 " Edit current mode.
-      let file_path = self.modes_dir . '/' . self.modeName()
+      let file_path = self.modes_dir . '/' . self.mode_name
       execute mudox#query_open_file#New(file_path)
     else " edit a new or existing mode.
       let file_path = self.modes_dir . '/' . names[0]
@@ -554,7 +557,7 @@ endfunction
 autocmd VimEnter * call <SID>OnVimEnter()
 
 function <SID>OnVimEnter()
-  let title = get(s:cham, 'title', s:cham.modeName())
+  let title = get(s:cham, 'title', s:cham.mode_name)
 
   silent set title
   let &titlestring = title
