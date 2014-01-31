@@ -536,7 +536,7 @@ command -nargs=1 -complete=custom,<SID>MetasAvail EditMeta
 nnoremap <Enter>b :EditMeta<Space>
 
 "function <SID>MetasAvail(arglead, cmdline, cursorpos)
-function <SID>MetasAvail()
+function <SID>MetasAvail(...)
   return join(s:cham.metasAvail(), "\n")
 endfunction
 
@@ -547,7 +547,7 @@ command -nargs=* -complete=custom,<SID>modesAvail EditMode
       \ call s:cham.editMode(<q-args>)
 nnoremap <Enter>c :EditMode<Space>
 
-function <SID>modesAvail()
+function <SID>modesAvail(...)
   return join(s:cham.modesAvail(), "\n")
 endfunction
 
