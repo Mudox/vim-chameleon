@@ -1,9 +1,11 @@
 " vim: foldmethod=marker
 
+" GUARD {{{1
 if exists("s:loaded") || &cp || version < 700
     finish
 endif
 let s:loaded = 1
+" }}}1
 
 scriptencoding utf8
 
@@ -16,7 +18,7 @@ let s:cham.vundle          = { 'name' : 'Vundle'   }
 let s:cham.pathogen        = { 'name' : 'Pathogen' }
 let s:cham.neobundle       = { 'name' : 'NeoBundle'}
 
-" s:cham -- the core object                {{{1
+" S:CHAM -- THE CORE OBJECT                {{{1
 
 function s:cham.init() dict                 " {{{2
 
@@ -212,9 +214,9 @@ endfunction
 " }}}2
 
 function s:cham.modesAvail() dict           " {{{2
-  let configs = glob(self.modes_dir . '/*', 1, 1)
-  call map(configs, 'fnamemodify(v:val, ":t:r")')
-  return configs
+  let modes = glob(self.modes_dir . '/*', 1, 1)
+  call map(modes, 'fnamemodify(v:val, ":t:r")')
+  return modes
 endfunction
 " }}}2
 
@@ -232,7 +234,7 @@ function s:cham.neobundle.init() dict       " {{{2
     exe 'set runtimepath+=' . escape(g:rc_root, '\ ') . '/neobundle/neobundle'
   endif
 
-  call neobundle#rc(g:vim_config_root . '/neobundle')
+  call neobundle#rc(g:rc_root . '/neobundle')
 
   " Let neobundle manage neobundle
   NeoBundleFetch 'Shougo/neobundle.vim' , { 'name' : 'neobundle' }
@@ -468,7 +470,7 @@ endfunction
 " }}}2
 " }}}1
 
-" intermediate functions                   {{{1
+" INTERMEDIATE FUNCTIONS                   {{{1
 
 " temporary global functions used in modes/* to source sub-mode files.
 " since s:cham.loadModes will be called only once on the start, the commands and
@@ -515,12 +517,23 @@ endfunction
 
 "}}}1
 
-" public interfaces                        {{{1
+" PUBLIC INTERFACES                        {{{1
 
 function mudox#chameleon#Init()             " {{{2
   call s:cham.init()
-endfunction
-" }}}2
+endfunction " }}}2
+
+function mudox#chameleon#ModeList() " {{{2
+  return s:cham.modesAvail()
+endfunction "  }}}2
+
+function mudox#chameleon#MetaList() " {{{2
+  return s:cham.metasAvail()
+endfunction "  }}}2
+
+function mudox#chameleon#TopModeList() " {{{2
+  return filter(s:cham.modesAvail(), 'v:val !~# "^x_"')
+endfunction "  }}}2
 
 " :ChamInfo                                   {{{2
 command -nargs=0 ChamInfo call mudox#chameleon#Info()
