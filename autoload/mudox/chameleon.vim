@@ -2,7 +2,7 @@
 
 " GUARD {{{1
 if exists("s:loaded") || &cp || version < 700
-    finish
+  finish
 endif
 let s:loaded = 1
 " }}}1
@@ -27,6 +27,7 @@ function s:cham.init() dict                 " {{{2
         \ expand('~/.vim/chameleon')
         \ )
   lockvar self.cham_dir
+  let g:mdx_chameleon_cur_mode_file = self.cham_dir . '/cur_mode'
 
   let self.repo_dir        = get(g:, 'mdx_chameleon_bundles_root',
         \ expand('~/.vim/neobundle')
@@ -48,7 +49,6 @@ function s:cham.init() dict                 " {{{2
   let self.manager_avail   = ['Pathogen', 'NeoBundle']
   lockvar self.manager_avail
 
-  let self.mode_name       = 'vim_dev' " failsafe
   call self.initModeName()
   lockvar self.mode_name
 
@@ -84,14 +84,21 @@ endfunction
 " }}}2
 
 function s:cham.initModeName() dict             " {{{2
-  " check if the appropriate environment variable has valid value.
-
-  let name = readfile(self.cham_dir . '/cur_mode')[0]
-  if index(self.modesAvail(), name) == -1
-    throw 'Invalid mode name in ' . self.cham_dir . '/cur_mode'
+  if exists('g:mdx_chameleon_cur_mode')
+    if index(self.modesAvail(), g:mdx_chameleon_cur_mode) == -1
+      throw 'Invalid mode name in g:mdx_chameleon_cur_mode: '
+            \ . g:mdx_chameleon_cur_mode
+    else
+      let self.mode_name = g:mdx_chameleon_cur_mode
+    endif
+  else
+    let name = readfile(self.cham_dir . '/cur_mode')[0]
+    if index(self.modesAvail(), name) == -1
+      throw 'Invalid mode name in ' . self.cham_dir . '/cur_mode'
+    else
+      let self.mode_name = name
+    endif
   endif
-
-  let self.mode_name = name
 endfunction
 " }}}2
 
@@ -579,6 +586,7 @@ endfunction
 " }}}2
 
 let g:mdx = s:cham
-let mudox#chameleon#core = s:cham
+"let mudox#chameleon#core = s:cham
+let g:chameleon = s:cham
 
 "}}}1
