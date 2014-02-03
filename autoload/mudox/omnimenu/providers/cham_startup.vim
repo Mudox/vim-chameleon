@@ -20,7 +20,7 @@ function s:action_enter(session) " {{{2
 
 endfunction "  }}}2
 
-function s:source_generator(session) " {{{2
+function s:feed(session) " {{{2
   let line_list = mudox#chameleon#TopModeList()
 
   if !empty(a:session.input)
@@ -36,7 +36,7 @@ endfunction "  }}}2
 let mudox#omnimenu#providers#cham_startup#provider = {
       \ 'title'             : 'New Gvim Instance',
       \ 'description'       : 'spawn a new gvim isntance in new mode',
-      \ 'source_generator'  : function('s:source_generator'),
+      \ 'feed'              : function('s:feed'),
       \ 'action_enter'      : function('s:action_enter'),
       \ }
 let s:provider = mudox#omnimenu#providers#cham_startup#provider

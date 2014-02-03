@@ -1,6 +1,6 @@
 " vim: foldmethod=marker
 
-" GUARD {{{1
+" GUARD                                    {{{1
 if exists("s:loaded") || &cp || version < 700
   finish
 endif
@@ -8,6 +8,8 @@ let s:loaded = 1
 " }}}1
 
 scriptencoding utf8
+
+" S:CHAM -- THE CORE OBJECT                {{{1
 
 let s:cham                 = {}
 
@@ -17,8 +19,6 @@ let s:cham                 = {}
 let s:cham.vundle          = { 'name' : 'Vundle'   }
 let s:cham.pathogen        = { 'name' : 'Pathogen' }
 let s:cham.neobundle       = { 'name' : 'NeoBundle'}
-
-" S:CHAM -- THE CORE OBJECT                {{{1
 
 function s:cham.init() dict                 " {{{2
 
@@ -83,7 +83,7 @@ function s:cham.init() dict                 " {{{2
 endfunction
 " }}}2
 
-function s:cham.initModeName() dict             " {{{2
+function s:cham.initModeName() dict         " {{{2
   if exists('g:mdx_chameleon_cur_mode')
     if index(self.modesAvail(), g:mdx_chameleon_cur_mode) == -1
       throw 'Invalid mode name in g:mdx_chameleon_cur_mode: '
@@ -530,15 +530,15 @@ function mudox#chameleon#Init()             " {{{2
   call s:cham.init()
 endfunction " }}}2
 
-function mudox#chameleon#ModeList() " {{{2
+function mudox#chameleon#ModeList()         " {{{2
   return s:cham.modesAvail()
 endfunction "  }}}2
 
-function mudox#chameleon#MetaList() " {{{2
+function mudox#chameleon#MetaList()         " {{{2
   return s:cham.metasAvail()
 endfunction "  }}}2
 
-function mudox#chameleon#TopModeList() " {{{2
+function mudox#chameleon#TopModeList()      " {{{2
   return filter(s:cham.modesAvail(), 'v:val !~# "^x_"')
 endfunction "  }}}2
 
@@ -553,9 +553,9 @@ endfunction
 " :EditMeta & <Enter>b                        {{{2
 command -nargs=1 -complete=custom,<SID>MetasAvail EditMeta
       \ call s:cham.editMeta(<q-args>)
-nnoremap <Enter>b :EditMeta<Space>
+nnoremap <silent> <Plug>(Chameleon_Edit_Meta_OmniMenu) :<C-U>call OmniMenu(
+      \ mudox#omnimenu#providers#cham_edit_meta#provider)<Cr>
 
-"function <SID>MetasAvail(arglead, cmdline, cursorpos)
 function <SID>MetasAvail(...)
   return join(s:cham.metasAvail(), "\n")
 endfunction
@@ -565,7 +565,8 @@ endfunction
 " :EditMode & <Enter>c                        {{{2
 command -nargs=* -complete=custom,<SID>modesAvail EditMode
       \ call s:cham.editMode(<q-args>)
-nnoremap <Enter>c :EditMode<Space>
+nnoremap <silent> <Plug>(Chameleon_Edit_Mode_OmniMenu) :<C-U>call OmniMenu(
+      \ mudox#omnimenu#providers#cham_edit_mode#provider)<Cr>
 
 function <SID>modesAvail(...)
   return join(s:cham.modesAvail(), "\n")
