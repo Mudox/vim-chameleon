@@ -7,6 +7,8 @@ endif
 let s:loaded = 1
 " }}}1
 
+" REGISTRATION {{{1
+
 call mudox#omnimenu#register#add(
       \ 'Edit Chameleon Meta'                             ,
       \ 'edit/create chameleon meta.'                     ,
@@ -24,3 +26,9 @@ call mudox#omnimenu#register#add(
       \ 'spawn a new gvim isntance in selected mode.'   ,
       \ 'mudox#omnimenu#providers#cham_startup#provider',
       \ )
+
+" }}}1
+
+command -narg=0 ChamStartup call OmniMenu(
+      \ mudox#omnimenu#providers#cham_startup#provider_startup)
+nnoremap <silent> <Plug>(OmniMenu_ChamStartup) :<C-U>ChamStartup<Cr>
