@@ -9,7 +9,7 @@ let s:loaded = 1
 
 " PROVIDER MEMEBERS " {{{1
 
-function s:action_enter(session) " {{{2
+function s:on_enter(session) " {{{2
   " close omnibuffer & clear cmd line.
   close | redraw
 
@@ -37,6 +37,6 @@ let mudox#omnimenu#providers#cham_startup#provider = {
       \ 'title'             : 'New Gvim Instance',
       \ 'description'       : 'spawn a new gvim isntance in new mode',
       \ 'feed'              : function('s:feed'),
-      \ 'action_enter'      : function('s:action_enter'),
+      \ 'on_enter'          : function('s:on_enter'),
       \ }
 let s:provider = mudox#omnimenu#providers#cham_startup#provider

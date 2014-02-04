@@ -7,8 +7,6 @@ endif
 let s:loaded = 1
 " }}}1
 
-scriptencoding utf8
-
 " S:CHAM -- THE CORE OBJECT                {{{1
 
 let s:cham                 = {}
