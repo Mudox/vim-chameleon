@@ -548,11 +548,9 @@ endfunction
 
 " }}}2
 
-" :EditMeta & <Enter>b                        {{{2
+" :EditMeta                                   {{{2
 command -nargs=1 -complete=custom,<SID>MetasAvail EditMeta
       \ call s:cham.editMeta(<q-args>)
-nnoremap <silent> <Plug>(Chameleon_Edit_Meta_OmniMenu) :<C-U>call OmniMenu(
-      \ mudox#omnimenu#providers#cham_edit_meta#provider)<Cr>
 
 function <SID>MetasAvail(...)
   return join(s:cham.metasAvail(), "\n")
@@ -560,11 +558,9 @@ endfunction
 
 " }}}2
 
-" :EditMode & <Enter>c                        {{{2
+" :EditMode                                   {{{2
 command -nargs=* -complete=custom,<SID>modesAvail EditMode
       \ call s:cham.editMode(<q-args>)
-nnoremap <silent> <Plug>(Chameleon_Edit_Mode_OmniMenu) :<C-U>call OmniMenu(
-      \ mudox#omnimenu#providers#cham_edit_mode#provider)<Cr>
 
 function <SID>modesAvail(...)
   return join(s:cham.modesAvail(), "\n")
