@@ -58,7 +58,7 @@ function s:cham.init() dict                 " {{{2
   " variables                         {{{3
   " they are all filled and locked in s:cham.loadMode()
 
-  let self.manager         = self.neobundle " default
+  "let self.manager         = self.neobundle " default
   let self.title           = ''
   let self.mode_set        = [] " names of sourced modes/* files.
   let self.modes_duplicate = []
@@ -71,7 +71,7 @@ function s:cham.init() dict                 " {{{2
 
   " it will filed and locked in self.loadMetas()
   " and unleted in self.manager.init() after registering.
-  let self.metas           = [] " list of plugin meta dicts.
+  let self.meta_dicts           = [] " list of plugin meta dicts.
   "}}}3
 
   call self.loadMode()
@@ -192,22 +192,22 @@ function s:cham.loadMetas() dict            " {{{2
 
     let g:this_meta.neodict.name = g:this_meta.name
 
-    call add(self.metas, g:this_meta)
+    call add(self.meta_dicts, g:this_meta)
 
     unlet g:this_meta
   endfor
 
-  lockvar! self.metas
+  lockvar! self.meta_dicts
 endfunction
 " }}}2
 
 function s:cham.initBundles() dict          " {{{2
-  for meta in self.metas
+  for meta in self.meta_dicts
     call meta.config()
   endfor
 
-  unlock! self.metas
-  unlet self.metas
+  unlock! self.meta_dicts
+  unlet self.meta_dicts
 endfunction
 " }}}2
 
@@ -247,7 +247,7 @@ function s:cham.neobundle.init() dict       " {{{2
   execute 'NeoBundleLocal ' . escape(g:rc_root, '\ ') . '/bundle'
 
   " * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-  for meta in s:cham.metas
+  for meta in s:cham.meta_dicts
     execute "NeoBundle " . string(meta.site)
           \ . ', ' . string(meta.neodict)
   endfor
@@ -279,7 +279,7 @@ function s:cham.pathogen.init() dict        " {{{2
 
   " exclude those metas not listed in loaded modes/* files.
   let g:pathogen_disabled = filter(
-        \ self.metasAvail(), 'index(self.meta_set, v:val) == -1'
+        \ s:cham.metasAvail(), 'index(copy(s:cham.meta_set), v:val) == -1'
         \ )
 
   call pathogen#infect('neobundle/{}')
@@ -508,13 +508,11 @@ function SetBundleManager(name)             " {{{2
   endif
 
   " only top level config file can call this function.
-  if !empty(s:cham.manager)
+  if has_key(s:cham, 'manager')
     return
   endif
 
-  if a:name ==# 'NeoBundle'
-    execute 'let s:cham.manager = s:cham.' . tolower(a:name)
-  endif
+  execute 'let s:cham.manager = s:cham.' . tolower(a:name)
 
   lockvar s:cham.manager
 endfunction
@@ -580,8 +578,6 @@ endfunction
 
 " }}}2
 
-let g:mdx = s:cham
-"let mudox#chameleon#core = s:cham
-let g:chameleon = s:cham
+let g:mdx_chameleon = s:cham
 
 "}}}1
