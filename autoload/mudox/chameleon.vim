@@ -368,7 +368,6 @@ endfunction "}}}2
 
 function s:cham.dumpTree(dict, path) dict   " {{{2
   " arg path: a list record recursion path.
-
   let max_width = max(map(self.meta_set[:], 'len(v:val)')) + 2
   let fields = (&columns - len(self.prefix)) / max_width
 
@@ -380,11 +379,15 @@ function s:cham.dumpTree(dict, path) dict   " {{{2
   echohl Special
 
   if empty(a:dict.metas)
-    echo self.prefix . 'nothing ...'
+    echo self.prefix . '< empty >'
   else
     for i in range(len(a:dict.metas))
       if i % fields == 0 | echo self.prefix | endif
+      if index(self.metas_duplicate, a:dict.metas[i]) != -1
+        echohl MoreMsg
+      endif
       execute 'echon printf("%-' . max_width . 's", a:dict.metas[i])'
+      echohl Special
     endfor
   endif
 
