@@ -172,26 +172,18 @@ function s:cham.loadMode() dict             " {{{2
   " tree starts growing ...
   execute 'source ' . self.modes_dir . '/' . self.mode_name
 
-  " add 'chameleon' & manager's meta name uniquely to the top level ode.
+  " add 'chameleon' name uniquely to the top level ode.
   if index(self.tree.metas, 'chameleon')
     let self.tree.metas = insert(self.tree.metas, 'chameleon')
   endif
 
-  if index(self.tree.metas, s:cham.manager.name)
-    let self.tree.metas = insert(self.tree.metas, tolower(s:cham.manager.name))
-  endif
-
-  for x in ['chameleon', self.manager.name]
-    let x = tolower(x)
-
-    if index(self.meta_set, x) == -1
-      let self.meta_set = insert(self.meta_set, x)
-    else
-      if index(self.metas_duplicate, x) == -1
-        let self.metas_duplicate = add(self.metas_duplicate, x)
-      endif
+  if index(self.meta_set, 'chameleon') == -1
+    let self.meta_set = insert(self.meta_set, 'chameleon')
+  else
+    if index(self.metas_duplicate, 'chameleon') == -1
+      let self.metas_duplicate = add(self.metas_duplicate, 'chameleon')
     endif
-  endfor
+  endif
 
   " lock
   lockvar  self.title
@@ -213,12 +205,7 @@ endfunction
 " }}}2
 
 function s:cham.loadMetas() dict            " {{{2
-  " 'chameleon & manager already loaded.
-  let meta_to_load = filter(copy(self.meta_set), 'v:val !=# "chameleon"')
-  let meta_to_load = filter(copy(meta_to_load), 'v:val !=# ' .
-        \ string(tolower(self.manager.name)))
-
-  for name in meta_to_load
+  for name in self.meta_set
     let g:this_meta = {}
     let g:this_meta.neodict = {}
 
