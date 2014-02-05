@@ -7,7 +7,7 @@ endif
 let s:loaded = 1
 " }}}1
 
-" S:CHAM -- THE CORE OBJECT                {{{1
+" 'S:CHAM' -- THE CORE SINGLETON             {{{1
 
 let s:cham                 = {}
 
@@ -20,7 +20,7 @@ let s:cham.neobundle       = { 'name' : 'NeoBundle'}
 
 function s:cham.init() dict                 " {{{2
 
-  " constants                         {{{3
+  " constants                            {{{3
   let self.cham_dir        = get(g:, 'mdx_chameleon_root',
         \ expand('~/.vim/chameleon')
         \ )
@@ -55,7 +55,7 @@ function s:cham.init() dict                 " {{{2
   lockvar self.prefix
   "}}}3
 
-  " variables                         {{{3
+  " variables                            {{{3
   " they are all filled and locked in s:cham.loadMode()
 
   "let self.manager         = self.neobundle " default
@@ -101,7 +101,7 @@ endfunction
 " }}}2
 
 function s:cham.addMetas(list) dict         " {{{2
-  " make sure bundle list item be properly initialized.
+  " make sure meta set item be properly initialized.
   let self.tree_ptr.metas = get(self.tree_ptr, 'metas', [])
 
   if empty(a:list) | return | endif
@@ -123,7 +123,9 @@ function s:cham.addMetas(list) dict         " {{{2
     if index(self.meta_set, name) == -1
       call add(self.meta_set, name)
     else
-      call add(self.metas_duplicate, name)
+      if index(self.metas_duplicate, name) == -1
+        call add(self.metas_duplicate, name)
+      endif
     endif
   endfor
 endfunction
@@ -162,7 +164,34 @@ function s:cham.loadMode() dict             " {{{2
   " temporary pointer tracing current sub tree during traversal.
   let self.tree_ptr = self.tree
 
+  " the node of tree consist of
+  "   [.metas] -- a list that simulate set type to hold metas introduced by
+  "   the mode file.
+  "   [.modes] -- a dictionary of which the keys hold the sub-modes' file
+  "   names, and values will hold the corresponding sub-node.
+  " tree starts growing ...
   execute 'source ' . self.modes_dir . '/' . self.mode_name
+
+  " add 'chameleon' & manager's meta name uniquely to the top level ode.
+  if index(self.tree.metas, 'chameleon')
+    let self.tree.metas = insert(self.tree.metas, 'chameleon')
+  endif
+
+  if index(self.tree.metas, s:cham.manager.name)
+    let self.tree.metas = insert(self.tree.metas, tolower(s:cham.manager.name))
+  endif
+
+  for x in ['chameleon', self.manager.name]
+    let x = tolower(x)
+
+    if index(self.meta_set, x) == -1
+      let self.meta_set = insert(self.meta_set, x)
+    else
+      if index(self.metas_duplicate, x) == -1
+        let self.metas_duplicate = add(self.metas_duplicate, x)
+      endif
+    endif
+  endfor
 
   " lock
   lockvar  self.title
@@ -184,7 +213,12 @@ endfunction
 " }}}2
 
 function s:cham.loadMetas() dict            " {{{2
-  for name in self.meta_set
+  " 'chameleon & manager already loaded.
+  let meta_to_load = filter(copy(self.meta_set), 'v:val !=# "chameleon"')
+  let meta_to_load = filter(copy(meta_to_load), 'v:val !=# ' .
+        \ string(tolower(self.manager.name)))
+
+  for name in meta_to_load
     let g:this_meta = {}
     let g:this_meta.neodict = {}
 
@@ -477,9 +511,8 @@ endfunction
 
 " INTERMEDIATE FUNCTIONS                   {{{1
 
-" temporary global functions used in modes/* to source sub-mode files.
-" since s:cham.loadModes will be called only once on the start, the commands and
-" functions are guaranteed to be defined and deleted properly.
+" temporary global functions used in modes/* to for mode configurations.
+" these function only survive during the only invocation of s:cham.init().
 
 function AddBundles(list)                   " {{{2
   call s:cham.addMetas(a:list)
