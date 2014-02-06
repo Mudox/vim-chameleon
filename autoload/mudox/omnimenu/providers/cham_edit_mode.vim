@@ -30,7 +30,6 @@ function s:feed(session) " {{{2
   if !empty(a:session.input)
     let filtered_line_list = filter(copy(s:full_modes_avail),
           \ "match(v:val, '\\c\\V' . a:session.input) != -1")
-    let &l:statusline = len(filtered_line_list)
 
     if empty(filtered_line_list)
       return [printf('** Add a new meta named < %s >? **', a:session.input)]
