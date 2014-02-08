@@ -110,7 +110,8 @@ function s:cham.addMetas(list) dict         " {{{2
 
     " check meta name's validity.
     if index(self.metasAvail(), name) == -1
-      echoerr printf("Invalid meta name: %s", name)
+      echoerr printf("Invalid meta name: [%s] required by {%s}",
+            \ name, s:cur_sourcing_mode)
       break
     endif
 
@@ -147,6 +148,7 @@ function s:cham.mergeModes(list) dict       " {{{2
 
     let old_ptr = self.tree_ptr
     let self.tree_ptr = self.tree_ptr.modes[name]
+    let s:cur_sourcing_mode = name
 
     " submerge.
     execute 'source ' . self.modes_dir . '/' . name
@@ -170,6 +172,7 @@ function s:cham.loadMode() dict             " {{{2
   "   [.modes] -- a dictionary of which the keys hold the sub-modes' file
   "   names, and values will hold the corresponding sub-node.
   " tree starts growing ...
+  let s:cur_sourcing_mode = self.mode_name
   execute 'source ' . self.modes_dir . '/' . self.mode_name
 
   " add 'chameleon' name uniquely to the top level ode.
@@ -200,7 +203,9 @@ function s:cham.loadMode() dict             " {{{2
   delfunction MergeConfigs
   delfunction SetTitle
   delfunction SetBundleManager
+
   unlet self.tree_ptr
+  unlet s:cur_sourcing_mode
 endfunction
 " }}}2
 
