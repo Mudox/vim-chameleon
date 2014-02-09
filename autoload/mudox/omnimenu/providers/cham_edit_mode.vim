@@ -13,13 +13,15 @@ function s:on_enter(session) " {{{2
   " close omnibuffer & clear cmd line.
   call mudox#omnimenu#close()
 
-  if len(a:session.lines) == 1 && a:session.line =~ '\m^** '
+  if a:session.line =~ '\m^** '
     let selected_mode = a:session.input
   else
     let selected_mode = a:session.line
   endif
 
   call g:mdx_chameleon.editMode(selected_mode)
+
+  return 'quit'
 endfunction "  }}}2
 
 function s:feed(session) " {{{2
