@@ -7,7 +7,7 @@ endif
 let s:loaded = 1
 " }}}1
 
-" 'S:CHAM' -- THE CORE SINGLETON             {{{1
+" 'S:CHAM' -- THE CORE SINGLETON           {{{1
 
 let s:cham                 = {}
 
@@ -20,7 +20,7 @@ let s:cham.neobundle       = { 'name' : 'NeoBundle'}
 
 function s:cham.init() dict                 " {{{2
 
-  " constants                            {{{3
+  " constants                              {{{3
   let self.cham_dir        = get(g:, 'mdx_chameleon_root',
         \ expand('~/.vim/chameleon')
         \ )
@@ -55,7 +55,7 @@ function s:cham.init() dict                 " {{{2
   lockvar self.prefix
   "}}}3
 
-  " variables                            {{{3
+  " variables                              {{{3
   " they are all filled and locked in s:cham.loadMode()
 
   "let self.manager         = self.neobundle " default
@@ -102,7 +102,7 @@ endfunction
 
 function s:cham.addMetas(list) dict         " {{{2
   " make sure meta set item be properly initialized.
-  let self.tree_ptr.metas = get(self.tree_ptr, 'metas', [])
+  let s:cursor.metas = get(s:cursor, 'metas', [])
 
   if empty(a:list) | return | endif
 
@@ -111,13 +111,13 @@ function s:cham.addMetas(list) dict         " {{{2
     " check meta name's validity.
     if index(self.metasAvail(), name) == -1
       echoerr printf("Invalid meta name: [%s] required by {%s}",
-            \ name, s:cur_sourcing_mode)
+            \ name, s:stack[0].name)
       break
     endif
 
     " add unique meta names to current tree.metas set.
-    if index(self.tree_ptr.metas, name) == -1
-      call add(self.tree_ptr.metas, name)
+    if index(s:cursor.metas, name) == -1
+      call add(s:cursor.metas, name)
     endif
 
     " add unique meta names to the centralized set.
@@ -143,18 +143,23 @@ function s:cham.mergeModes(list) dict       " {{{2
     endif
 
     " make sure sub-tree item is properly initialized.
-    let self.tree_ptr.modes[name] = get(self.tree_ptr.modes, name,
+    let s:cursor.modes[name] = get(s:cursor.modes, name,
           \ { 'metas' : [], 'modes' : {} })
 
-    let old_ptr = self.tree_ptr
-    let self.tree_ptr = self.tree_ptr.modes[name]
-    let s:cur_sourcing_mode = name
+    " push parent node.
+    let s:stack = insert(s:stack,
+          \ { 'name' : name, 'ptr' : s:cursor.modes[name]}, 0)
+    "let old_ptr = s:cursor
+    let s:cursor = s:cursor.modes[name] " step forward.
 
     " submerge.
     execute 'source ' . self.modes_dir . '/' . name
 
-    call sort(self.tree_ptr.metas)
-    let self.tree_ptr = old_ptr
+    call sort(s:cursor.metas)
+    " pop stack
+    let s:cursor = s:stack[0].ptr
+    unlet s:stack[0]
+    "let s:cursor = old_ptr
   endfor
 endfunction
 " }}}2
@@ -164,7 +169,7 @@ function s:cham.loadMode() dict             " {{{2
   " virtually, all jobs done by the 4 temporary global functions below.
 
   " temporary pointer tracing current sub tree during traversal.
-  let self.tree_ptr = self.tree
+  let s:cursor = self.tree
 
   " the node of tree consist of
   "   [.metas] -- a list that simulate set type to hold metas introduced by
@@ -172,7 +177,11 @@ function s:cham.loadMode() dict             " {{{2
   "   [.modes] -- a dictionary of which the keys hold the sub-modes' file
   "   names, and values will hold the corresponding sub-node.
   " tree starts growing ...
-  let s:cur_sourcing_mode = self.mode_name
+
+  " a stack tracing crrent node during traversing.
+  " use a list to simulate a stack, with each elements to be a 2-tuple of the
+  " form: (name, ptr).
+  let s:stack = [ {'name' : self.mode_name, 'ptr' : s:cursor} ] " initialize.
   execute 'source ' . self.modes_dir . '/' . self.mode_name
 
   " add 'chameleon' name uniquely to the top level ode.
@@ -204,8 +213,8 @@ function s:cham.loadMode() dict             " {{{2
   delfunction SetTitle
   delfunction SetBundleManager
 
-  unlet self.tree_ptr
-  unlet s:cur_sourcing_mode
+  unlet s:cursor
+  unlet s:stack
 endfunction
 " }}}2
 
