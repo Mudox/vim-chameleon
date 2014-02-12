@@ -50,5 +50,6 @@ let mudox#omnimenu#providers#cham_startup#provider_startup = copy(
       \ mudox#omnimenu#providers#cham_startup#provider)
 let mudox#omnimenu#providers#cham_startup#provider_startup.open_way   = 'edit'
 let mudox#omnimenu#providers#cham_startup#provider_startup.shrinkable = 0
+let mudox#omnimenu#providers#cham_startup#provider_startup.view       = 'list'
 
 " }}}1
