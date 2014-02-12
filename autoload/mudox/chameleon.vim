@@ -7,7 +7,7 @@ endif
 let s:loaded = 1
 " }}}1
 
-" 'S:CHAM' -- THE CORE SINGLETON           {{{1
+" CHAM -- THE CORE SINGLETON               {{{1
 
 let s:cham                 = {}
 
@@ -20,7 +20,7 @@ let s:cham.neobundle       = { 'name' : 'NeoBundle'}
 
 function s:cham.init() dict                 " {{{2
 
-  " constants                              {{{3
+  " constants                          {{{3
   let self.cham_dir        = get(g:, 'mdx_chameleon_root',
         \ expand('~/.vim/chameleon')
         \ )
@@ -55,7 +55,7 @@ function s:cham.init() dict                 " {{{2
   lockvar self.prefix
   "}}}3
 
-  " variables                              {{{3
+  " variables                          {{{3
   " they are all filled and locked in s:cham.loadMode()
 
   "let self.manager         = self.neobundle " default
@@ -71,7 +71,7 @@ function s:cham.init() dict                 " {{{2
 
   " it will filed and locked in self.loadMetas()
   " and unleted in self.manager.init() after registering.
-  let self.meta_dicts           = [] " list of plugin meta dicts.
+  let self.meta_dicts      = [] " list of plugin meta dicts.
   "}}}3
 
   call self.loadMode()
@@ -147,9 +147,8 @@ function s:cham.mergeModes(list) dict       " {{{2
           \ { 'metas' : [], 'modes' : {} })
 
     " push parent node.
-    let s:stack = insert(s:stack,
+    call insert(s:stack,
           \ { 'name' : name, 'ptr' : s:cursor.modes[name]}, 0)
-    "let old_ptr = s:cursor
     let s:cursor = s:cursor.modes[name] " step forward.
 
     " submerge.
@@ -157,9 +156,8 @@ function s:cham.mergeModes(list) dict       " {{{2
 
     call sort(s:cursor.metas)
     " pop stack
-    let s:cursor = s:stack[0].ptr
     unlet s:stack[0]
-    "let s:cursor = old_ptr
+    let s:cursor = s:stack[0].ptr
   endfor
 endfunction
 " }}}2
@@ -186,14 +184,14 @@ function s:cham.loadMode() dict             " {{{2
 
   " add 'chameleon' name uniquely to the top level ode.
   if index(self.tree.metas, 'chameleon')
-    let self.tree.metas = insert(self.tree.metas, 'chameleon')
+    call insert(self.tree.metas, 'chameleon')
   endif
 
   if index(self.meta_set, 'chameleon') == -1
     let self.meta_set = insert(self.meta_set, 'chameleon')
   else
     if index(self.metas_duplicate, 'chameleon') == -1
-      let self.metas_duplicate = add(self.metas_duplicate, 'chameleon')
+      call add(self.metas_duplicate, 'chameleon')
     endif
   endif
 
