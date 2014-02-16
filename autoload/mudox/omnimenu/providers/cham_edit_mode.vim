@@ -61,4 +61,5 @@ let mudox#omnimenu#providers#cham_edit_mode#provider = {
       \ 'description'       : 'edit/create chameleon mode',
       \ 'feed'              : function('s:feed'),
       \ 'on_enter'          : function('s:on_enter'),
+      \ 'view'              : 'grid',
       \ }
