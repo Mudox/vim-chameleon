@@ -11,6 +11,7 @@ let s:loaded = 1
 
 function s:on_enter(session)   " {{{2
   echo 'lauching: ' . a:session.line
+
   call writefile([a:session.getsel()], g:mdx_chameleon_cur_mode_file)
   py import subprocess
   py subprocess.Popen('gvim')
