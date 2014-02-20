@@ -10,9 +10,15 @@ let s:loaded = 1
 " PROVIDER MEMEBERS           {{{1
 
 function s:on_enter(session)   " {{{2
-  echo 'lauching: ' . a:session.line
+  let selected = a:session.getsel()
 
+  if selected ==# '** invalid input **'
+    return 'handled'
+  endif
+
+  echo 'lauching: ' . a:session.line
   call writefile([a:session.getsel()], g:mdx_chameleon_cur_mode_file)
+
   py import subprocess
   py subprocess.Popen('gvim')
 
@@ -27,6 +33,10 @@ function s:feed(session)       " {{{2
 
   if !empty(a:session.input)
     call filter(line_list, "match(v:val, '^.*' . a:session.input . '.*$') != -1")
+  endif
+
+  if empty(line_list)
+    return ['** invalid input **']
   endif
 
   return line_list
