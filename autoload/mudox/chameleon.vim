@@ -356,7 +356,7 @@ function s:cham.info() dict                                                     
   endfor
 
   echohl Number
-  echon printf(" in %2d ", len(self.mode_set))
+  echon printf(" in %2d ", len(self.mode_set) + 1)
   echohl Title
   echon "Mode files"
   call self.dumpTree(self.tree, ['.'])
