@@ -20,7 +20,13 @@ function s:on_enter(session)   " {{{2
   call writefile([a:session.getsel()], g:mdx_chameleon_cur_mode_file)
 
   py import subprocess
-  py subprocess.Popen('gvim')
+  if has('win32') || has('win64')
+    py subprocess.Popen(['gvim'])
+  elseif has('mac') || has('macunix')
+    py subprocess.Popen(['/Applications/MacVim.app/Contents/MacOS/Vim', '-g'])
+  elseif has('unix')
+    py subprocess.Popen(['gvim'])
+  endif
 
   " close omnibuffer & clear cmd line.
   " closing at the beginning will cause vim to quit in statup mode, which
