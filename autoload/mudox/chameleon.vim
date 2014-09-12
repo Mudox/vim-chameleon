@@ -21,9 +21,17 @@ let s:cham.neobundle       = { 'name' : 'NeoBundle'}
 function s:cham.init() dict                                                             " {{{2
 
   " constants                                                                                {{{3
-  let self.cham_dir        = get(g:, 'mdx_chameleon_root',
-        \ expand('~/.vim/chameleon')
-        \ )
+  
+  if has('win32') || has('win64') " on windows platform
+    let self.cham_dir        = get(g:, 'mdx_chameleon_root',
+          \ expand('~/vimfiles/chameleon')
+          \ )
+  else " on *nix platform
+    let self.cham_dir        = get(g:, 'mdx_chameleon_root',
+          \ expand('~/.vim/chameleon')
+          \ )
+  endif
+    
   lockvar self.cham_dir
   let g:mdx_chameleon_cur_mode_file = self.cham_dir . '/cur_mode'
 
@@ -90,7 +98,7 @@ function s:cham.initModeName() dict                                             
       let self.mode_name = g:mdx_chameleon_cur_mode
     endif
   else
-    let name = readfile(self.cham_dir . '/cur_mode')[0]
+    let name = readfile(expand(self.cham_dir . '\cur_mode'))[0]
     if index(self.modesAvail(), name) == -1
       throw 'Invalid mode name in ' . self.cham_dir . '/cur_mode'
     else
