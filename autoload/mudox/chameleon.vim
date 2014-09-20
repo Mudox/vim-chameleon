@@ -98,7 +98,7 @@ function s:cham.initModeName() dict                                             
       let self.mode_name = g:mdx_chameleon_cur_mode
     endif
   else
-    let name = readfile(expand(self.cham_dir . '\cur_mode'))[0]
+    let name = readfile(expand(self.cham_dir . '/cur_mode'))[0]
     if index(self.modesAvail(), name) == -1
       throw 'Invalid mode name in ' . self.cham_dir . '/cur_mode'
     else
