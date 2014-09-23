@@ -21,7 +21,7 @@ let s:cham.neobundle       = { 'name' : 'NeoBundle'}
 function s:cham.init() dict                                                             " {{{2
 
   " constants                                                                                {{{3
-  
+
   if has('win32') || has('win64') " on windows platform
     let self.cham_dir        = get(g:, 'mdx_chameleon_root',
           \ expand('~/vimfiles/chameleon')
@@ -31,7 +31,7 @@ function s:cham.init() dict                                                     
           \ expand('~/.vim/chameleon')
           \ )
   endif
-    
+
   lockvar self.cham_dir
   let g:mdx_chameleon_cur_mode_file = self.cham_dir . '/cur_mode'
 
@@ -585,26 +585,6 @@ endfunction "  }}}2
 command -nargs=0 ChamInfo call mudox#chameleon#Info()
 function mudox#chameleon#Info()
   call s:cham.info()
-endfunction
-
-" }}}2
-
-" :EditMeta                                                                               {{{2
-"command -nargs=1 -complete=custom,<SID>MetasAvail EditMeta
-      "\ call s:cham.editMeta(<q-args>)
-
-function <SID>MetasAvail(...)
-  return join(s:cham.metasAvail(), "\n")
-endfunction
-
-" }}}2
-
-" :EditMode                                                                               {{{2
-"command -nargs=* -complete=custom,<SID>modesAvail EditMode
-      "\ call s:cham.editMode(<q-args>)
-
-function <SID>modesAvail(...)
-  return join(s:cham.modesAvail(), "\n")
 endfunction
 
 " }}}2
