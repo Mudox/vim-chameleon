@@ -590,8 +590,8 @@ endfunction
 " }}}2
 
 " :EditMeta                                                                               {{{2
-command -nargs=1 -complete=custom,<SID>MetasAvail EditMeta
-      \ call s:cham.editMeta(<q-args>)
+"command -nargs=1 -complete=custom,<SID>MetasAvail EditMeta
+      "\ call s:cham.editMeta(<q-args>)
 
 function <SID>MetasAvail(...)
   return join(s:cham.metasAvail(), "\n")
@@ -600,8 +600,8 @@ endfunction
 " }}}2
 
 " :EditMode                                                                               {{{2
-command -nargs=* -complete=custom,<SID>modesAvail EditMode
-      \ call s:cham.editMode(<q-args>)
+"command -nargs=* -complete=custom,<SID>modesAvail EditMode
+      "\ call s:cham.editMode(<q-args>)
 
 function <SID>modesAvail(...)
   return join(s:cham.modesAvail(), "\n")
