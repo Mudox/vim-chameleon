@@ -477,6 +477,7 @@ function s:cham.editMeta(name) dict                                             
 
   " if it is creating a new meta, fill it with appropriate template.
   if exists('tmpl')
+    let g:create_tmpl = 1
     setlocal filetype=vim
     setlocal foldmethod=marker
     setlocal fileformat=unix
@@ -500,11 +501,7 @@ endfunction
 " }}}2
 
 function s:cham.peekUrl() dict                                                          " {{{2
-  " currently only support github & bitbucket address.
-  let git_pat       = '\mgit://.\+/.\+\.git'
-  let github_pat    = '\m\%(https://github\.com/\|git@github\.com:\)[^/]\+/[^/]\+\.git'
-  let bitbucket_pat = '\mhttps://bitbucket\.org/[^/]\+/[^/]\+\%(\.git\)\?'
-  let url_pat = bitbucket_pat . '\|' . github_pat . '\|' . git_pat
+  let url_pat = '\m\c^\%(https://\|git@\).*'
 
   for reg in [@", @+, @*, @a]
     let url = matchstr(reg, url_pat)
@@ -512,6 +509,8 @@ function s:cham.peekUrl() dict                                                  
       break
     endif
   endfor
+
+  let g:parsed_url = url
 
   " will returns an empty string if parsing failed.
   return url
