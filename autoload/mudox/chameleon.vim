@@ -274,17 +274,18 @@ endfunction
 " }}}2
 
 function s:cham.neobundle.init() dict                                                   " {{{2
-  set nocompatible                " Recommend
-
   if has('vim_starting')
+    set nocompatible                " Recommend
     exe 'set runtimepath+=' . escape(g:rc_root, '\ ') . '/neobundle/neobundle'
   endif
 
-  call neobundle#rc(g:rc_root . '/neobundle')
+  call neobundle#begin(g:rc_root . '/neobundle')
 
   " Let neobundle manage neobundle
   NeoBundleFetch 'Shougo/neobundle.vim' , { 'name' : 'neobundle' }
 
+  " manually install plugin, that can not be managed by neobundle.
+  " often because they have no git like repository.
   execute 'NeoBundleLocal ' . escape(g:rc_root, '\ ') . '/bundle'
 
   " * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -293,6 +294,8 @@ function s:cham.neobundle.init() dict                                           
           \ . ', ' . string(meta.neodict)
   endfor
   " * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+  call neobundle#end()
 
   filetype plugin indent on       " Required!
 
