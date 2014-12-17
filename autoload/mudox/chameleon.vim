@@ -85,7 +85,7 @@ function s:cham.init() dict                                                     
   call self.loadMode()
   call self.loadMetas()
   call self.manager.init()
-  call self.initBundles()
+  "call self.initBundles()
 endfunction
 " }}}2
 
@@ -569,6 +569,10 @@ endfunction
 
 function mudox#chameleon#Init()                                                         " {{{2
   call s:cham.init()
+endfunction " }}}2
+
+function mudox#chameleon#InitBundles()                                                         " {{{2
+  call s:cham.initBundles()
 endfunction " }}}2
 
 function mudox#chameleon#ModeList()                                                     " {{{2
