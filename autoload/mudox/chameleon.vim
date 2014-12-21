@@ -226,8 +226,8 @@ endfunction
 
 function s:cham.loadMetas() dict                                                        " {{{2
   for name in self.meta_set
-    let g:this_meta = {}
-    let g:this_meta.neodict = {}
+    let g:this_meta = { 'name' : name }
+    let g:this_meta.neodict = { 'name' : name }
 
     execute 'source ' . self.metas_dir . '/' . name
 
