@@ -16,6 +16,17 @@ function s:on_enter(session)   " {{{2
     return 'handled'
   endif
 
+  " ask if quit current vim instance after spawning.
+  redraw!
+  echohl Special | echon "\nPress [yY] to quit after:" | echohl None
+  let key = getchar()
+  if nr2char(key) ==? 'y'
+    echo nr2char(key)
+    let quit = 1
+  else
+    let quit = 0
+  endif
+
   echo 'lauching: ' . a:session.line
   call writefile([a:session.getsel()], g:mdx_chameleon_cur_mode_file)
 
@@ -23,7 +34,8 @@ function s:on_enter(session)   " {{{2
   if has('win32') || has('win64')
     py subprocess.Popen(['gvim'])
   elseif has('mac') || has('macunix')
-    py subprocess.Popen(['/Applications/MacVim.app/Contents/MacOS/Vim', '-g'])
+    "py subprocess.Popen(['/Applications/MacVim.app/Contents/MacOS/Vim', '-g'])
+    py subprocess.Popen(['vimr', '-n'])
   elseif has('unix')
     py subprocess.Popen(['gvim'])
   endif
@@ -32,6 +44,10 @@ function s:on_enter(session)   " {{{2
   " closing at the beginning will cause vim to quit in statup mode, which
   " would skip the aboving spawning process.
   call mudox#omnimenu#close()
+
+  if quit
+    qall
+  endif
 endfunction "  }}}2
 
 function s:feed(session)       " {{{2
