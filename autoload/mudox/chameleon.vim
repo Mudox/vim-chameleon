@@ -11,12 +11,8 @@ let s:loaded = 1
 
 let s:cham                 = {}
 
-" supported vim bundle managers.
-" since they have method function to be defined, they must be initialized
-" outside of functions.
-let s:cham.vundle          = { 'name' : 'Vundle'   }
-let s:cham.pathogen        = { 'name' : 'Pathogen' }
-let s:cham.neobundle       = { 'name' : 'NeoBundle'}
+" currently use 'VimPlug' as the plugin manager.
+let s:cham.manager         = { 'name' : 'vimplug'   }
 
 function s:cham.init() dict                                                             " {{{2
 
@@ -52,9 +48,6 @@ function s:cham.init() dict                                                     
   let self.mode_tmpl       = self.cham_dir . '/skel/mode_template'
   lockvar self.mode_tmpl
 
-  let self.manager_avail   = ['Pathogen', 'NeoBundle']
-  lockvar self.manager_avail
-
   call self.initModeName()
   lockvar self.mode_name
 
@@ -66,8 +59,7 @@ function s:cham.init() dict                                                     
   " variables                                                                                {{{3
   " they are all filled and locked in s:cham.loadMode()
 
-  "let self.manager         = self.neobundle " default
-  let self.title           = ''
+  let self.title           = 'title description'
   let self.mode_set        = [] " names of sourced modes/* files.
   let self.modes_duplicate = []
   let self.meta_set        = [] " names of sourced metas/* files.
@@ -85,7 +77,6 @@ function s:cham.init() dict                                                     
   call self.loadMode()
   call self.loadMetas()
   call self.manager.init()
-  "call self.initBundles()
 endfunction
 " }}}2
 
@@ -217,7 +208,6 @@ function s:cham.loadMode() dict                                                 
   delfunction AddBundles
   delfunction MergeConfigs
   delfunction SetTitle
-  delfunction SetBundleManager
 
   unlet s:cursor
   unlet s:stack
@@ -226,15 +216,14 @@ endfunction
 
 function s:cham.loadMetas() dict                                                        " {{{2
   for name in self.meta_set
-    let g:this_meta = { 'name' : name }
-    let g:this_meta.neodict = { 'name' : name }
+    " initialize the global temp dict
+    let g:this_meta = {}
 
     execute 'source ' . self.metas_dir . '/' . name
 
-    let g:this_meta.neodict.name = g:this_meta.name
+    let g:this_meta.vimplug_cmd_dict.dir = '~/.vim/plugged/' . name
 
     call add(self.meta_dicts, g:this_meta)
-
     unlet g:this_meta
   endfor
 
@@ -273,64 +262,15 @@ function s:cham.repoAvail() dict                                                
 endfunction
 " }}}2
 
-function s:cham.neobundle.init() dict                                                   " {{{2
-  if has('vim_starting')
-    set nocompatible                " Recommend
-    exe 'set runtimepath+=' . escape(g:rc_root, '\ ') . '/neobundle/neobundle'
-  endif
+function s:cham.manager.init() dict " {{{2
+  call plug#begin('~/.vim/plugged')
 
-  call neobundle#begin(g:rc_root . '/neobundle')
-
-  " Let neobundle manage neobundle
-  NeoBundleFetch 'Shougo/neobundle.vim' , { 'name' : 'neobundle' }
-
-  " manually install plugin, that can not be managed by neobundle.
-  " often because they have no git like repository.
-  execute 'NeoBundleLocal ' . escape(g:rc_root, '\ ') . '/bundle'
-
-  " * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
   for meta in s:cham.meta_dicts
-    execute "NeoBundle " . string(meta.site)
-          \ . ', ' . string(meta.neodict)
+    execute "Plug " . string(meta.site) . ', ' .
+          \ string(meta.vimplug_cmd_dict)
   endfor
-  " * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-  call neobundle#end()
-
-  filetype plugin indent on       " Required!
-
-  " Installation check.
-  NeoBundleCheck
-
-  if !has('vim_starting')
-    " Call on_source hook when reloading .vimrc.
-    call neobundle#call_hook('on_source')
-  endif
-
-  " mapping \neo to update and show update log.
-  nnoremap \neo <Esc>:NeoBundleUpdate<CR>:NeoBundleUpdatesLog<CR>
-endfunction
-" }}}2
-
-function s:cham.pathogen.init() dict                                                    " {{{2
-  filetype off
-  filetype plugin indent off
-
-  let g:pathogen_disabled = []
-  if has('vim_starting')
-    exe 'set runtimepath+=' . escape(g:rc_root, '\ ') . '/neobundle/pathogen'
-  endif
-
-  " exclude those metas not listed in loaded modes/* files.
-  let g:pathogen_disabled = filter(
-        \ s:cham.metasAvail(), 'index(copy(s:cham.meta_set), v:val) == -1'
-        \ )
-
-  call pathogen#infect('neobundle/{}')
-  call pathogen#infect('bundle/{}') " will be removed in the future.
-
-  syntax enable
-  filetype plugin indent on
+  call plug#end()
 endfunction
 " }}}2
 
@@ -544,22 +484,6 @@ function SetTitle(name)                                                         
 
   let s:cham.title = a:name
   lockvar s:cham.title
-endfunction
-" }}}2
-
-function SetBundleManager(name)                                                         " {{{2
-  if index(s:cham.manager_avail, a:name) == -1
-    throw 'Invalid manager name, need ' . string(s:cham.manager_avail)
-  endif
-
-  " only top level config file can call this function.
-  if has_key(s:cham, 'manager')
-    return
-  endif
-
-  execute 'let s:cham.manager = s:cham.' . tolower(a:name)
-
-  lockvar s:cham.manager
 endfunction
 " }}}2
 
