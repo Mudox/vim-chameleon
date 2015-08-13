@@ -492,6 +492,15 @@ endfunction
 " PUBLIC INTERFACES                                                                    {{{1
 
 function mudox#chameleon#Init()                                                         " {{{2
+  " try to download & install Vim-Plug if not.
+  " for bootstrapping.
+  if empty(glob('~/.vim/autoload/plug.vim'))
+    echohl WarningMsg | echo "vim-plug not available, try install ..." | echohl None
+    silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+          \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    autocmd VimEnter * PlugInstall
+  endif
+
   call s:cham.init()
 endfunction " }}}2
 
