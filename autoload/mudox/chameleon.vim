@@ -12,7 +12,8 @@ let s:loaded = 1
 let s:cham                 = {}
 
 " currently use 'VimPlug' as the plugin manager.
-let s:cham.manager         = { 'name' : 'vimplug'   }
+"let s:cham.manager         = { 'name' : 'vimplug'   }
+let s:cham.manager         = {}
 
 function s:cham.init() dict                                                             " {{{2
 
@@ -59,7 +60,7 @@ function s:cham.init() dict                                                     
   " variables                                                                                {{{3
   " they are all filled and locked in s:cham.loadMode()
 
-  let self.title           = 'title description'
+  "let self.title           = 'title description'
   let self.mode_set        = [] " names of sourced modes/* files.
   let self.modes_duplicate = []
   let self.meta_set        = [] " names of sourced metas/* files.
@@ -179,9 +180,12 @@ function s:cham.loadMode() dict                                                 
   " use a list to simulate a stack, with each elements to be a 2-tuple of the
   " form: (name, ptr).
   let s:stack = [ {'name' : self.mode_name, 'ptr' : s:cursor} ] " initialize.
+  " the temporary global function MergeConfigs & AddBundles will be called in
+  " the sourced mode files which, in turn, would do the dirty work to build
+  " the tree
   execute 'source ' . self.modes_dir . '/' . self.mode_name
 
-  " add 'chameleon' name uniquely to the top level ode.
+  " add 'chameleon' name uniquely to the top level node.
   if index(self.tree.metas, 'chameleon')
     call insert(self.tree.metas, 'chameleon')
   endif
@@ -195,7 +199,7 @@ function s:cham.loadMode() dict                                                 
   endif
 
   " lock
-  lockvar  self.title
+  "lockvar  self.title
   lockvar  self.manager
   lockvar! self.tree
 
@@ -276,10 +280,10 @@ endfunction
 
 function s:cham.info() dict                                                             " {{{2
   " mode name
-  echohl Title
-  echon printf("%-14s ", 'Mode:')
-  echohl Identifier
-  echon printf("%s\n", self.title)
+  "echohl Title
+  "echon printf("%-14s ", 'Mode:')
+  "echohl Identifier
+  "echon printf("%s\n", self.title)
 
   " mode file name
   echohl Title
@@ -288,10 +292,10 @@ function s:cham.info() dict                                                     
   echon printf("%s\n", self.mode_name)
 
   " bundle manager name
-  echohl Title
-  echon printf("%-14s ", 'Manager:')
-  echohl Identifier
-  echon printf("%s\n", self.manager.name)
+  "echohl Title
+  "echon printf("%-14s ", 'Manager:')
+  "echohl Identifier
+  "echon printf("%s\n", self.manager.name)
 
   " long delimiter line.
   echohl Number
