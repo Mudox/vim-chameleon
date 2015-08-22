@@ -225,7 +225,8 @@ function s:cham.loadMetas() dict                                                
 
     execute 'source ' . self.metas_dir . '/' . name
 
-    let g:this_meta.vimplug_cmd_dict.dir = '~/.vim/plugged/' . name
+    let dir = substitute(name, '@.*$', '', '')
+    let g:this_meta.vimplug_cmd_dict.dir = '~/.vim/plugged/' . dir
 
     call add(self.meta_dicts, g:this_meta)
     unlet g:this_meta
