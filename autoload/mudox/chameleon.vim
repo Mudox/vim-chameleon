@@ -1,13 +1,13 @@
 " vim: foldmethod=marker
 
-" GUARD                                                                                {{{1
+" GUARD                                                                             {{{1
 if exists("s:loaded") || &cp || version < 700
   finish
 endif
 let s:loaded = 1
 " }}}1
 
-" CHAM -- THE CORE SINGLETON                                                           {{{1
+" CHAM -- THE CORE SINGLETON                                                        {{{1
 
 let s:cham                 = {}
 
@@ -15,9 +15,9 @@ let s:cham                 = {}
 "let s:cham.manager         = { 'name' : 'vimplug'   }
 let s:cham.manager         = {}
 
-function s:cham.init() dict                                                             " {{{2
+function s:cham.init() dict                                                       "    {{{2
 
-  " constants                                                                                {{{3
+  " constants                                                                             {{{3
 
   if has('win32') || has('win64') " on windows platform
     let self.cham_dir        = get(g:, 'mdx_chameleon_root',
@@ -56,7 +56,7 @@ function s:cham.init() dict                                                     
   lockvar self.prefix
   "}}}3
 
-  " variables                                                                                {{{3
+  " variables                                                                             {{{3
   " they are all filled and locked in s:cham.loadMode()
 
   "let self.title           = 'title description'
@@ -85,7 +85,7 @@ endfunction
 " - self.mode_file_path
 " - g:mdx_chameleon_mode_name
 " - g:mdx_chameleon_mode_file_path
-function s:cham.initModeName() dict                                                     " {{{2
+function s:cham.initModeName() dict                                               "    {{{2
   let mode_file_path = expand(self.cham_dir . '/cur_mode')
 
   if exists('$MDX_CHAMELEON_MODE')
@@ -133,7 +133,7 @@ function s:cham.initModeName() dict                                             
 endfunction
 " }}}2
 
-function s:cham.addMetas(list) dict                                                     " {{{2
+function s:cham.addMetas(list) dict                                               "    {{{2
   " make sure meta set item be properly initialized.
   let s:cursor.metas = get(s:cursor, 'metas', [])
 
@@ -165,7 +165,7 @@ function s:cham.addMetas(list) dict                                             
 endfunction
 " }}}2
 
-function s:cham.mergeModes(list) dict                                                   " {{{2
+function s:cham.mergeModes(list) dict                                             "    {{{2
   for name in a:list
     " check cyclic or duplicate merging.
     if index(self.mode_set, name) != -1
@@ -195,7 +195,7 @@ function s:cham.mergeModes(list) dict                                           
 endfunction
 " }}}2
 
-function s:cham.loadMode() dict                                                         " {{{2
+function s:cham.loadMode() dict                                                   "    {{{2
   " parse mode files, and fill self.tree, self.meta_set, self.mode_set ...
   " virtually, all jobs done by the 4 temporary global functions below.
 
@@ -251,7 +251,7 @@ function s:cham.loadMode() dict                                                 
 endfunction
 " }}}2
 
-function s:cham.loadMetas() dict                                                        " {{{2
+function s:cham.loadMetas() dict                                                  "    {{{2
   for name in self.meta_set
     " initialize the global temp dict
     let g:this_meta = {}
@@ -269,7 +269,7 @@ function s:cham.loadMetas() dict                                                
 endfunction
 " }}}2
 
-function s:cham.initBundles() dict                                                      " {{{2
+function s:cham.initBundles() dict                                                "    {{{2
   for meta in self.meta_dicts
     call meta.config()
   endfor
@@ -279,14 +279,14 @@ function s:cham.initBundles() dict                                              
 endfunction
 " }}}2
 
-function s:cham.metasAvail() dict                                                       " {{{2
+function s:cham.metasAvail() dict                                                 "    {{{2
   let metas = glob(self.metas_dir . '/*', 1, 1)
   call map(metas, 'fnamemodify(v:val, ":t:r")')
   return metas
 endfunction
 " }}}2
 
-function s:cham.modesAvail() dict                                                       " {{{2
+function s:cham.modesAvail() dict                                                 "    {{{2
   let modes = glob(self.modes_dir . '/*', 1, 1)
   call map(modes, 'fnamemodify(v:val, ":t:r")')
   return modes
@@ -294,14 +294,14 @@ endfunction
 " }}}2
 
 " NOTE: currrently unused
-function s:cham.repoAvail() dict                                                        " {{{2
+function s:cham.repoAvail() dict                                                  "    {{{2
   let metas_installed = glob(self.repo_dir . '/*', 1, 1)
   call map(metas_installed, 'fnamemodify(v:val, ":t:r")')
   return metas_installed
 endfunction
 " }}}2
 
-function s:cham.manager.init() dict " {{{2
+function s:cham.manager.init() dict                                               "    {{{2
   call plug#begin('~/.vim/plugged')
 
   for meta in s:cham.meta_dicts
@@ -313,7 +313,7 @@ function s:cham.manager.init() dict " {{{2
 endfunction
 " }}}2
 
-function s:cham.info() dict                                                             " {{{2
+function s:cham.info() dict                                                       "    {{{2
   " mode name
   "echohl Title
   "echon printf("%-14s ", 'Mode:')
@@ -355,7 +355,7 @@ function s:cham.info() dict                                                     
   echohl None
 endfunction "}}}2
 
-function s:cham.dumpTree(dict, path) dict                                               " {{{2
+function s:cham.dumpTree(dict, path) dict                                         "    {{{2
   " arg path: a list record recursion path.
   let max_width = max(map(self.meta_set[:], 'len(v:val)')) + 2
   let fields = (&columns - len(self.prefix)) / max_width
@@ -389,7 +389,7 @@ function s:cham.dumpTree(dict, path) dict                                       
 endfunction
 " }}}2
 
-function s:cham.editMode(arg) dict                                                      " {{{2
+function s:cham.editMode(arg) dict                                                "    {{{2
   let names = split(a:arg)
   if len(names) > 2
     echoerr 'Too many arguments, at most 2 arguemnts is needed'
@@ -435,7 +435,7 @@ function s:cham.editMode(arg) dict                                              
 endfunction
 " }}}2
 
-function s:cham.editMeta(name) dict                                                     " {{{2
+function s:cham.editMeta(name) dict                                               "    {{{2
   let file_name = self.metas_dir . '/' . a:name
 
   try
@@ -482,7 +482,7 @@ function s:cham.editMeta(name) dict                                             
 endfunction
 " }}}2
 
-function s:cham.peekUrl() dict                                                          " {{{2
+function s:cham.peekUrl() dict                                                    "    {{{2
   let url_pat = '\m\c^\%(https://\|git@\).*'
 
   for reg in [@", @+, @*, @a]
@@ -500,22 +500,22 @@ endfunction
 " }}}2
 " }}}1
 
-" INTERMEDIATE FUNCTIONS                                                               {{{1
+" INTERMEDIATE FUNCTIONS                                                            {{{1
 
 " temporary global functions used in modes/* to for mode configurations.
 " these function only survive during the only invocation of s:cham.init().
 
-function AddBundles(list)                                                               " {{{2
+function AddBundles(list)                                                         "    {{{2
   call s:cham.addMetas(a:list)
 endfunction
 " }}}2
 
-function MergeConfigs(list)                                                             " {{{2
+function MergeConfigs(list)                                                       "    {{{2
   call s:cham.mergeModes(a:list)
 endfunction
 " }}}2
 
-function SetTitle(name)                                                                 " {{{2
+function SetTitle(name)                                                           "    {{{2
   " only top level config file can call this function.
   if !empty(s:cham.title)
     return
@@ -528,9 +528,9 @@ endfunction
 
 "}}}1
 
-" PUBLIC INTERFACES                                                                    {{{1
+" PUBLIC INTERFACES                                                                 {{{1
 
-function mudox#chameleon#Init()                                                         " {{{2
+function mudox#chameleon#Init()                                                   "    {{{2
   " try to download & install Vim-Plug if not.
   " for bootstrapping.
   if empty(glob('~/.vim/autoload/plug.vim'))
@@ -543,23 +543,23 @@ function mudox#chameleon#Init()                                                 
   call s:cham.init()
 endfunction " }}}2
 
-function mudox#chameleon#InitBundles()                                                         " {{{2
+function mudox#chameleon#InitBundles()                                            "    {{{2
   call s:cham.initBundles()
 endfunction " }}}2
 
-function mudox#chameleon#ModeList()                                                     " {{{2
+function mudox#chameleon#ModeList()                                               "    {{{2
   return s:cham.modesAvail()
 endfunction "  }}}2
 
-function mudox#chameleon#MetaList()                                                     " {{{2
+function mudox#chameleon#MetaList()                                               "    {{{2
   return s:cham.metasAvail()
 endfunction "  }}}2
 
-function mudox#chameleon#TopModeList()                                                  " {{{2
+function mudox#chameleon#TopModeList()                                            "    {{{2
   return filter(s:cham.modesAvail(), 'v:val !~# "^x_"')
 endfunction "  }}}2
 
-" :ChamInfo                                                                               {{{2
+" :ChamInfo                                                                            {{{2
 command -nargs=0 ChamInfo call mudox#chameleon#Info()
 function mudox#chameleon#Info()
   call s:cham.info()
@@ -567,7 +567,7 @@ endfunction
 
 " }}}2
 
-" autocmd VimEnter                                                                        {{{2
+" autocmd VimEnter                                                                     {{{2
 autocmd VimEnter * call <SID>OnVimEnter()
 
 function <SID>OnVimEnter()
