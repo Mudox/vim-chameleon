@@ -28,13 +28,9 @@ function s:cham.init() dict                                                     
           \ expand('~/.vim/chameleon')
           \ )
   endif
-
   lockvar self.cham_dir
-  let g:mdx_chameleon_cur_mode_file = self.cham_dir . '/cur_mode'
 
-  let self.repo_dir        = get(g:, 'mdx_chameleon_bundles_root',
-        \ expand('~/.vim/neobundle')
-        \ )
+  let self.repo_dir        = g:rc_root . '/plugged'
   lockvar self.repo_dir
 
   let self.metas_dir       = self.cham_dir . '/metas'
@@ -51,6 +47,9 @@ function s:cham.init() dict                                                     
 
   call self.initModeName()
   lockvar self.mode_name
+  lockvar self.mode_file_path
+  lockvar g:mdx_chameleon_mode_name
+  lockvar g:mdx_chameleon_cur_mode_file_path
 
   " use in :ChamInfo command output.
   let self.prefix          = ' └ '
@@ -81,22 +80,56 @@ function s:cham.init() dict                                                     
 endfunction
 " }}}2
 
+" determine the mode name for this vim session. it initializes:
+" - self.mode_name
+" - self.mode_file_path
+" - g:mdx_chameleon_mode_name
+" - g:mdx_chameleon_mode_file_path
 function s:cham.initModeName() dict                                                     " {{{2
-  if exists('g:mdx_chameleon_cur_mode')
-    if index(self.modesAvail(), g:mdx_chameleon_cur_mode) == -1
-      throw 'Invalid mode name in g:mdx_chameleon_cur_mode: '
-            \ . g:mdx_chameleon_cur_mode
-    else
-      let self.mode_name = g:mdx_chameleon_cur_mode
+  let mode_file_path = expand(self.cham_dir . '/cur_mode')
+
+  if exists('$MDX_CHAMELEON_MODE')
+
+    " FIRST: see if mode name can be read from $MDX_CHAMELEON_MODE
+    if index(self.modesAvail(), $MDX_CHAMELEON_MODE) == -1
+      throw printf(
+            \ 'chameleon: invalid mode name [%s] found in $MDX_CHAMELEON_MODE',
+            \ $MDX_CHAMELEON_MODE)
     endif
+
+    let self.mode_name = $MDX_CHAMELEON_MODE
+
   else
+
+    " THEN: read mode name from 'cur_mode' file.
+    " check file availability
+    " if not exist, create & populate it with bootstrapping default
+    if ! filereadable(mode_file_path)
+      echohl WarningMsg
+      echo 'mode file missing in ' . mode_file_path
+      echo 'create & populate it with "vim" ...'
+      echohl None
+
+      " TODO: maybe a 'default' mode is more appropriate.
+      call writefile(['vim'], mode_file_path)
+    endif
+
     let name = readfile(expand(self.cham_dir . '/cur_mode'))[0]
     if index(self.modesAvail(), name) == -1
-      throw 'Invalid mode name in ' . self.cham_dir . '/cur_mode'
-    else
-      let self.mode_name = name
+      throw printf(
+            \ 'chameleon: invalid mode name [%s] in %s',
+            \ name,
+            \ mode_file_path)
     endif
+
+    let self.mode_name = name
+
   endif
+
+  " only for inspection from outside the plugin
+  let self.mode_file_path = mode_file_path
+  let g:mdx_chameleon_mode_name = self.mode_name
+  let g:mdx_chameleon_mode_file_path = mode_file_path
 endfunction
 " }}}2
 
@@ -260,6 +293,7 @@ function s:cham.modesAvail() dict                                               
 endfunction
 " }}}2
 
+" NOTE: currrently unused
 function s:cham.repoAvail() dict                                                        " {{{2
   let metas_installed = glob(self.repo_dir . '/*', 1, 1)
   call map(metas_installed, 'fnamemodify(v:val, ":t:r")')
