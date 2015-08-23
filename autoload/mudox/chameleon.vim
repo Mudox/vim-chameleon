@@ -560,7 +560,7 @@ function mudox#chameleon#TopModeList()                                          
 endfunction "  }}}2
 
 " :ChamInfo                                                                            {{{2
-command -nargs=0 ChamInfo call mudox#chameleon#Info()
+command ChamInfo call mudox#chameleon#Info()
 function mudox#chameleon#Info()
   call s:cham.info()
 endfunction
