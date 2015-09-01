@@ -17,7 +17,7 @@ let s:cham.manager         = {}
 
 function s:cham.init() dict                                                       "    {{{2
 
-  " constants                                                                             {{{3
+  " initialize constants                                                                  {{{3
 
   if has('win32') || has('win64') " on windows platform
     let self.cham_dir        = get(g:, 'mdx_chameleon_root',
@@ -56,7 +56,7 @@ function s:cham.init() dict                                                     
   lockvar self.prefix
   "}}}3
 
-  " variables                                                                             {{{3
+  " initialize variables                                                                  {{{3
   " they are all filled and locked in s:cham.loadMode()
 
   "let self.title           = 'title description'
@@ -202,6 +202,20 @@ function s:cham.loadMode() dict                                                 
   " temporary pointer tracing current sub tree during traversal.
   let s:cursor = self.tree
 
+  if self.mode_name ==# 'update-all'
+    let self.tree.metas = filter(self.metasAvail(), 'v:val !~ ".*@.*"')
+    let self.meta_set = self.tree.metas
+    let self.mode_set = ['update-all']
+
+    augroup Mdx_Chameleon_Udpate_All
+      autocmd!
+      autocmd VimEnter * PlugUpgrade | PlugUpdate | wincmd o
+            \| autocmd! Mdx_Chameleon_Udpate_All
+    augroup END
+
+    return
+  endif
+
   " the node of tree consist of
   "   [.metas] -- a list that simulate set type to hold metas introduced by
   "   the mode file.
@@ -212,13 +226,14 @@ function s:cham.loadMode() dict                                                 
   " a stack tracing crrent node during traversing.
   " use a list to simulate a stack, with each elements to be a 2-tuple of the
   " form: (name, ptr).
-  let s:stack = [ {'name' : self.mode_name, 'ptr' : s:cursor} ] " initialize.
+  let s:stack = [ {'name' : self.mode_name, 'ptr' : s:cursor} ]
+
   " the temporary global function MergeConfigs & AddBundles will be called in
   " the sourced mode files which, in turn, would do the dirty work to build
   " the tree
   execute 'source ' . self.modes_dir . '/' . self.mode_name
 
-  " add 'chameleon' name uniquely to the top level node.
+  " add 'chameleon' name uniquely to the root node.
   if index(self.tree.metas, 'chameleon')
     call insert(self.tree.metas, 'chameleon')
   endif
@@ -252,6 +267,7 @@ endfunction
 " }}}2
 
 function s:cham.loadMetas() dict                                                  "    {{{2
+
   for name in self.meta_set
     " initialize the global temp dict
     let g:this_meta = {}
@@ -260,6 +276,11 @@ function s:cham.loadMetas() dict                                                
 
     let dir = substitute(name, '@.*$', '', '')
     let g:this_meta.vimplug_cmd_dict.dir = '~/.vim/plugged/' . dir
+
+    if self.mode_name ==# 'update-all'
+      let g:this_meta.vimplug_cmd_dict.on = ''
+      unlet g:this_meta.config
+    endif
 
     call add(self.meta_dicts, g:this_meta)
     unlet g:this_meta
@@ -271,7 +292,10 @@ endfunction
 
 function s:cham.initBundles() dict                                                "    {{{2
   for meta in self.meta_dicts
-    call meta.config()
+    " in 'udpate' mode, no config function is needed.
+    if has_key(meta, 'config')
+      call meta.config()
+    endif
   endfor
 
   unlock! self.meta_dicts
@@ -289,6 +313,7 @@ endfunction
 function s:cham.modesAvail() dict                                                 "    {{{2
   let modes = glob(self.modes_dir . '/*', 1, 1)
   call map(modes, 'fnamemodify(v:val, ":t:r")')
+  call add(modes, 'update-all')
   return modes
 endfunction
 " }}}2
