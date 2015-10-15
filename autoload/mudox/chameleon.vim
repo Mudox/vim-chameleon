@@ -145,7 +145,7 @@ function s:cham.addMetas(list) dict                                             
     if index(self.metasAvail(), name) == -1
       echoerr printf("Invalid meta name: [%s] required by {%s}",
             \ name, s:stack[0].name)
-      break
+      continue
     endif
 
     " add unique meta names to current tree.metas set.
@@ -424,12 +424,12 @@ function s:cham.editMode(arg) dict                                              
   try
     if len(names) == 0 " Edit current mode.
       let file_path = self.modes_dir . '/' . self.mode_name
-      execute mudox#query_open_file#New(file_path)
+      execute Qpen(file_path)
     else " edit a new or existing mode.
       let file_path = self.modes_dir . '/' . names[0]
 
       if filereadable(file_path) " edit a existing file.
-        execute mudox#query_open_file#New(file_path)
+        execute Qpen(file_path)
       else " edit a new file.
         " read template content if any.
         if filereadable(self.mode_tmpl)
@@ -442,7 +442,7 @@ function s:cham.editMode(arg) dict                                              
           echohl None
         endif
 
-        call mudox#query_open_file#New(file_path)
+        call Qpen(file_path)
         setlocal filetype=vim
         setlocal foldmethod=marker
         setlocal fileformat=unix
@@ -464,7 +464,7 @@ function s:cham.editMeta(name) dict                                             
   let file_name = self.metas_dir . '/' . a:name
 
   try
-    call mudox#query_open_file#New(file_name) " gvie user chance to cancel.
+    call Qpen(file_name) " gvie user chance to cancel.
   catch /^mudox#query_open_file: Canceled$/
     echohl WarningMsg | echo '* EditMeta: Canceled *' | echohl None
     return
