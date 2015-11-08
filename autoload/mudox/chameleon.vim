@@ -129,7 +129,9 @@ function s:cham.initModeName() dict                                             
   " only for inspection from outside the plugin
   let self.mode_file_path = mode_file_path
   let g:mdx_chameleon_mode_name = self.mode_name
+  lockvar g:mdx_chameleon_mode_name
   let g:mdx_chameleon_mode_file_path = mode_file_path
+  lockvar g:mdx_chameleon_mode_file_path
 endfunction
 " }}}2
 
