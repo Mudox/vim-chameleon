@@ -426,12 +426,12 @@ function s:cham.editMode(arg) dict                                              
   try
     if len(names) == 0 " Edit current mode.
       let file_path = self.modes_dir . '/' . self.mode_name
-      execute Qpen(file_path)
+      call Qpen(file_path)
     else " edit a new or existing mode.
       let file_path = self.modes_dir . '/' . names[0]
 
       if filereadable(file_path) " edit a existing file.
-        execute Qpen(file_path)
+        call Qpen(file_path)
       else " edit a new file.
         " read template content if any.
         if filereadable(self.mode_tmpl)
@@ -455,7 +455,7 @@ function s:cham.editMode(arg) dict                                              
         endif
       endif
     endif
-  catch /^mudox#query_open_file: Canceled$/
+  catch /^Qpen: Canceled$/
     echohl WarningMsg | echo '* EditMode: Canceled *' | echohl None
     return
   endtry
@@ -466,8 +466,8 @@ function s:cham.editMeta(name) dict                                             
   let file_name = self.metas_dir . '/' . a:name
 
   try
-    call Qpen(file_name) " gvie user chance to cancel.
-  catch /^mudox#query_open_file: Canceled$/
+    call Qpen(file_name)
+  catch /^Qpen: Canceled$/
     echohl WarningMsg | echo '* EditMeta: Canceled *' | echohl None
     return
   endtry
