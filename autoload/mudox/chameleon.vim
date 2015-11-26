@@ -205,7 +205,7 @@ function s:cham.loadMode() dict                                                 
   let s:cursor = self.tree
 
   if self.mode_name ==# 'update-all'
-    let self.tree.metas = filter(self.metasAvail(), 'v:val !~ ".*@.*"')
+    let self.tree.metas = filter(self.metasAvail(), 'v:val !~ "@"')
     let self.meta_set = self.tree.metas
     let self.mode_set = ['update-all']
 
@@ -280,7 +280,7 @@ function s:cham.loadMetas() dict                                                
     let g:this_meta.vimplug_cmd_dict.dir = '~/.vim/plugged/' . dir
 
     if self.mode_name ==# 'update-all'
-      let g:this_meta.vimplug_cmd_dict.on = ''
+      let g:this_meta.vimplug_cmd_dict.on = []
       unlet g:this_meta.config
     endif
 
