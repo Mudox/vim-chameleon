@@ -1,4 +1,4 @@
-" vim: foldmethod=marker
+
 " TODO!!!: unobjectify s:charm
 " TODO!!: DSL like vader.vim for defining meta files
 
@@ -17,89 +17,89 @@ let s:cham                 = {}
 "let s:cham.manager         = { 'name' : 'vimplug'   }
 let s:cham.manager         = {}
 
-function s:cham.init() dict                                                       " {{{2
+function s:cham_init()                                                            " {{{2
 
   " initialize constants                                                            {{{3
 
   if has('win32') || has('win64') " on windows platform
-    let self.cham_dir        = get(g:, 'mdx_chameleon_root',
+    let s:cham.cham_dir        = get(g:, 'mdx_chameleon_root',
           \ expand('~/vimfiles/chameleon')
           \ )
   else " on *nix platform
-    let self.cham_dir        = get(g:, 'mdx_chameleon_root',
+    let s:cham.cham_dir        = get(g:, 'mdx_chameleon_root',
           \ expand('~/.vim/chameleon')
           \ )
   endif
-  lockvar self.cham_dir
+  lockvar s:cham.cham_dir
 
-  let self.repo_dir        = g:rc_root . '/plugged'
-  lockvar self.repo_dir
+  let s:cham.repo_dir        = g:rc_root . '/plugged'
+  lockvar s:cham.repo_dir
 
-  let self.metas_dir       = self.cham_dir . '/metas'
-  lockvar self.metas_dir
+  let s:cham.metas_dir       = s:cham.cham_dir . '/metas'
+  lockvar s:cham.metas_dir
 
-  let self.modes_dir       = self.cham_dir . '/modes'
-  lockvar self.modes_dir
+  let s:cham.modes_dir       = s:cham.cham_dir . '/modes'
+  lockvar s:cham.modes_dir
 
-  let self.meta_tmpl       = self.cham_dir . '/skel/meta_template'
-  lockvar self.meta_tmpl
+  let s:cham.meta_tmpl       = s:cham.cham_dir . '/skel/meta_template'
+  lockvar s:cham.meta_tmpl
 
-  let self.mode_tmpl       = self.cham_dir . '/skel/mode_template'
-  lockvar self.mode_tmpl
+  let s:cham.mode_tmpl       = s:cham.cham_dir . '/skel/mode_template'
+  lockvar s:cham.mode_tmpl
 
-  call self.initModeName()
-  lockvar self.mode_name
-  lockvar self.mode_file_path
+  call s:cham_init_mode_name()
+  lockvar s:cham.mode_name
+  lockvar s:cham.mode_file_path
   lockvar g:mdx_chameleon_mode_name
   lockvar g:mdx_chameleon_cur_mode_file_path
 
   " use in :ChamInfo command output.
-  let self.prefix          = ' └ '
-  lockvar self.prefix
+  let s:cham.prefix          = ' └ '
+  lockvar s:cham.prefix
   "}}}3
 
   " initialize variables                                                            {{{3
-  " they are all filled and locked in s:cham.loadMode()
+  " they are all filled and locked in s:cham_load_mode()
 
-  "let self.title           = 'title description'
-  let self.mode_set        = [] " names of sourced modes/* files.
-  let self.modes_duplicate = []
-  let self.meta_set        = [] " names of sourced metas/* files.
-  let self.metas_duplicate = []
+  "let s:cham.title           = 'title description'
+  let s:cham.mode_set        = [] " names of sourced modes/* files.
+  let s:cham.modes_duplicate = []
+  let s:cham.meta_set        = [] " names of sourced metas/* files.
+  let s:cham.metas_duplicate = []
 
   " dict to hold config & bundle hierarchy.
-  " will fild and locked in self.loadMode()
-  let self.tree            = { 'metas' : [], 'modes' : {} }
+  " will fild and locked in s:cham_load_mode()
+  let s:cham.tree            = { 'metas' : [], 'modes' : {} }
 
-  " it will filed and locked in self.loadMetas()
-  " and unleted in self.manager.init() after registering.
-  let self.meta_dicts      = [] " list of plugin meta dicts.
+  " it will filed and locked in s:cham_load_metas()
+  " and unleted in s:cham_manager_init() after registering.
+  let s:cham.meta_dicts      = [] " list of plugin meta dicts.
   "}}}3
 
-  call self.loadMode()
-  call self.loadMetas()
-  call self.manager.init()
+  call s:cham_load_mode()
+  call s:cham_load_metas()
+  call s:cham_manager_init()
 endfunction
 " }}}2
 
 " determine the mode name for this vim session. it initializes:
-" - self.mode_name
-" - self.mode_file_path
+" - s:cham.mode_name
+" - s:cham.mode_file_path
 " - g:mdx_chameleon_mode_name
 " - g:mdx_chameleon_mode_file_path
-function s:cham.initModeName() dict                                               " {{{2
-  let mode_file_path = expand(self.cham_dir . '/cur_mode')
+function s:cham_init_mode_name()                                                  " {{{2
+  let mode_file_path = expand(s:cham.cham_dir . '/cur_mode')
 
   if exists('$MDX_CHAMELEON_MODE')
 
     " FIRST: see if mode name can be read from $MDX_CHAMELEON_MODE
-    if index(self.modesAvail(), $MDX_CHAMELEON_MODE) == -1
+    if index(s:cham_modes_avail(), $MDX_CHAMELEON_MODE) == -1
       throw printf(
             \ 'chameleon: invalid mode name [%s] found in $MDX_CHAMELEON_MODE',
             \ $MDX_CHAMELEON_MODE)
     endif
 
-    let self.mode_name = $MDX_CHAMELEON_MODE
+    let s:cham.mode_name = $MDX_CHAMELEON_MODE
 
   else
 
@@ -116,44 +116,44 @@ function s:cham.initModeName() dict                                             
       call writefile(['vim'], mode_file_path)
     endif
 
-    let name = readfile(expand(self.cham_dir . '/cur_mode'))[0]
-    if index(self.modesAvail(), name) == -1
+    let name = readfile(expand(s:cham.cham_dir . '/cur_mode'))[0]
+    if index(s:cham_modes_avail(), name) == -1
       throw printf(
             \ 'chameleon: invalid mode name [%s] in %s',
             \ name,
             \ mode_file_path)
     endif
 
-    let self.mode_name = name
+    let s:cham.mode_name = name
 
   endif
 
   " only for inspection from outside the plugin
-  let self.mode_file_path = mode_file_path
-  let g:mdx_chameleon_mode_name = self.mode_name
+  let s:cham.mode_file_path = mode_file_path
+  let g:mdx_chameleon_mode_name = s:cham.mode_name
   lockvar g:mdx_chameleon_mode_name
   let g:mdx_chameleon_mode_file_path = mode_file_path
   lockvar g:mdx_chameleon_mode_file_path
 endfunction
 " }}}2
 
-function! s:cham.add_essential(name) abort dict                                   " {{{2
-  " helper method only called in cham.loadMode()
+function! s:cham_add_essential_meta(name) abort                                   " {{{2
+  " helper method only called in cham_load_mode()
 
-  if index(self.tree.metas, a:name) == -1
-    call insert(self.tree.metas, a:name)
+  if index(s:cham.tree.metas, a:name) == -1
+    call insert(s:cham.tree.metas, a:name)
   endif
 
-  if index(self.meta_set, a:name) == -1
-    call insert(self.meta_set, a:name)
+  if index(s:cham.meta_set, a:name) == -1
+    call insert(s:cham.meta_set, a:name)
   else
-    if index(self.metas_duplicate, a:name) == -1
-      call add(self.metas_duplicate, a:name)
+    if index(s:cham.metas_duplicate, a:name) == -1
+      call add(s:cham.metas_duplicate, a:name)
     endif
   endif
 endfunction " }}}2
 
-function s:cham.addMetas(list) dict                                               " {{{2
+function s:cham_add_metas(list)                                                   " {{{2
   " make sure meta set item be properly initialized.
   let s:cursor.metas = get(s:cursor, 'metas', [])
 
@@ -162,7 +162,7 @@ function s:cham.addMetas(list) dict                                             
   for name in a:list
 
     " check meta name's validity.
-    if index(self.metasAvail(), name) == -1
+    if index(s:cham_metas_avail(), name) == -1
       echoerr printf("Invalid meta name: [%s] required by {%s}",
             \ name, s:stack[0].name)
       continue
@@ -174,25 +174,25 @@ function s:cham.addMetas(list) dict                                             
     endif
 
     " add unique meta names to the centralized set.
-    if index(self.meta_set, name) == -1
-      call add(self.meta_set, name)
+    if index(s:cham.meta_set, name) == -1
+      call add(s:cham.meta_set, name)
     else
-      if index(self.metas_duplicate, name) == -1
-        call add(self.metas_duplicate, name)
+      if index(s:cham.metas_duplicate, name) == -1
+        call add(s:cham.metas_duplicate, name)
       endif
     endif
   endfor
 endfunction
 " }}}2
 
-function s:cham.mergeModes(list) dict                                             " {{{2
+function s:cham_merge_modes(list)                                                 " {{{2
   for name in a:list
     " check cyclic or duplicate merging.
-    if index(self.mode_set, name) != -1
-      call add(self.modes_duplicate, name)
+    if index(s:cham.mode_set, name) != -1
+      call add(s:cham.modes_duplicate, name)
       return
     else
-      call add(self.mode_set, name)
+      call add(s:cham.mode_set, name)
     endif
 
     " make sure sub-tree item is properly initialized.
@@ -205,7 +205,7 @@ function s:cham.mergeModes(list) dict                                           
     let s:cursor = s:cursor.modes[name] " step forward.
 
     " submerge.
-    execute 'source ' . self.modes_dir . '/' . name
+    execute 'source ' . s:cham.modes_dir . '/' . name
 
     call sort(s:cursor.metas)
     " pop stack
@@ -215,17 +215,17 @@ function s:cham.mergeModes(list) dict                                           
 endfunction
 " }}}2
 
-function s:cham.loadMode() dict                                                   " {{{2
-  " parse mode files, and fill self.tree, self.meta_set, self.mode_set ...
+function s:cham_load_mode()                                                       " {{{2
+  " parse mode files, and fill s:cham.tree, s:cham.meta_set, s:cham.mode_set ...
   " virtually, all jobs done by the 4 temporary global functions below.
 
   " temporary pointer tracing current sub tree during traversal.
-  let s:cursor = self.tree
+  let s:cursor = s:cham.tree
 
-  if self.mode_name ==# 'update-all'
-    let self.tree.metas = filter(self.metasAvail(), 'v:val !~ "@"')
-    let self.meta_set = self.tree.metas
-    let self.mode_set = ['update-all']
+  if s:cham.mode_name ==# 'update-all'
+    let s:cham.tree.metas = filter(s:cham_metas_avail(), 'v:val !~ "@"')
+    let s:cham.meta_set = s:cham.tree.metas
+    let s:cham.mode_set = ['update-all']
 
     augroup Mdx_Chameleon_Udpate_All
       autocmd!
@@ -246,28 +246,28 @@ function s:cham.loadMode() dict                                                 
   " a stack tracing crrent node during traversing.
   " use a list to simulate a stack, with each elements to be a 2-tuple of the
   " form: (name, ptr).
-  let s:stack = [ {'name' : self.mode_name, 'ptr' : s:cursor} ]
+  let s:stack = [ {'name' : s:cham.mode_name, 'ptr' : s:cursor} ]
 
   " the temporary global function MergeConfigs & AddBundles will be called in
   " the sourced mode files which, in turn, would do the dirty work to build
   " the tree
-  execute 'source ' . self.modes_dir . '/' . self.mode_name
+  execute 'source ' . s:cham.modes_dir . '/' . s:cham.mode_name
 
   " add 'chameleon' and it's dependencies uniquely to the root node.
 
-  call self.add_essential('qpen')
-  call self.add_essential('omnimenu')
-  call self.add_essential('chameleon')
+  call s:cham_add_essential_meta('qpen')
+  call s:cham_add_essential_meta('omnimenu')
+  call s:cham_add_essential_meta('chameleon')
 
   " lock
-  "lockvar  self.title
-  lockvar  self.manager
-  lockvar! self.tree
+  "lockvar  s:cham.title
+  lockvar  s:cham.manager
+  lockvar! s:cham.tree
 
-  call sort(self.meta_set)        | lockvar  self.meta_set
-  call sort(self.metas_duplicate) | lockvar  self.metas_duplicate
-  call sort(self.mode_set)        | lockvar  self.mode_set
-  call sort(self.modes_duplicate) | lockvar  self.modes_duplicate
+  call sort(s:cham.meta_set)        | lockvar  s:cham.meta_set
+  call sort(s:cham.metas_duplicate) | lockvar  s:cham.metas_duplicate
+  call sort(s:cham.mode_set)        | lockvar  s:cham.mode_set
+  call sort(s:cham.modes_duplicate) | lockvar  s:cham.modes_duplicate
 
   " clean up functions & commands
   delfunction AddBundles
@@ -279,52 +279,52 @@ function s:cham.loadMode() dict                                                 
 endfunction
 " }}}2
 
-function s:cham.loadMetas() dict                                                  " {{{2
+function s:cham_load_metas()                                                      " {{{2
 
-  for name in self.meta_set
+  for name in s:cham.meta_set
     " initialize the global temp dict
     let g:this_meta = {}
 
-    execute 'source ' . self.metas_dir . '/' . name
+    execute 'source ' . s:cham.metas_dir . '/' . name
 
     let dir = substitute(name, '@.*$', '', '')
     let g:this_meta.vimplug_cmd_dict.dir = '~/.vim/plugged/' . dir
 
-    if self.mode_name ==# 'update-all'
+    if s:cham.mode_name ==# 'update-all'
       let g:this_meta.vimplug_cmd_dict.on = []
       unlet g:this_meta.config
     endif
 
-    call add(self.meta_dicts, g:this_meta)
+    call add(s:cham.meta_dicts, g:this_meta)
     unlet g:this_meta
   endfor
 
-  lockvar! self.meta_dicts
+  lockvar! s:cham.meta_dicts
 endfunction
 " }}}2
 
-function s:cham.initBundles() dict                                                " {{{2
-  for meta in self.meta_dicts
+function s:cham_init_bundles()                                                    " {{{2
+  for meta in s:cham.meta_dicts
     " in 'udpate' mode, no config function is needed.
     if has_key(meta, 'config')
       call meta.config()
     endif
   endfor
 
-  unlock! self.meta_dicts
-  unlet self.meta_dicts
+  unlock! s:cham.meta_dicts
+  unlet s:cham.meta_dicts
 endfunction
 " }}}2
 
-function s:cham.metasAvail() dict                                                 " {{{2
-  let metas = glob(self.metas_dir . '/*', 1, 1)
+function s:cham_metas_avail()                                                     " {{{2
+  let metas = glob(s:cham.metas_dir . '/*', 1, 1)
   call map(metas, 'fnamemodify(v:val, ":t:r")')
   return metas
 endfunction
 " }}}2
 
-function s:cham.modesAvail() dict                                                 " {{{2
-  let modes = glob(self.modes_dir . '/*', 1, 1)
+function s:cham_modes_avail()                                                     " {{{2
+  let modes = glob(s:cham.modes_dir . '/*', 1, 1)
   call map(modes, 'fnamemodify(v:val, ":t:r")')
   call add(modes, 'update-all')
   return modes
@@ -332,14 +332,14 @@ endfunction
 " }}}2
 
 " NOTE: currrently unused
-function s:cham.repoAvail() dict                                                  " {{{2
-  let metas_installed = glob(self.repo_dir . '/*', 1, 1)
+function s:cham_repo_avail()                                                      " {{{2
+  let metas_installed = glob(s:cham.repo_dir . '/*', 1, 1)
   call map(metas_installed, 'fnamemodify(v:val, ":t:r")')
   return metas_installed
 endfunction
 " }}}2
 
-function s:cham.manager.init() dict                                               " {{{2
+function s:cham_manager_init()                                                    " {{{2
   call plug#begin('~/.vim/plugged')
 
   for meta in s:cham.meta_dicts
@@ -351,28 +351,28 @@ function s:cham.manager.init() dict                                             
 endfunction
 " }}}2
 
-function s:cham.info() dict                                                       " {{{2
+function s:cham_info()                                                            " {{{2
   " mode name
   "echohl Title
   "echon printf("%-14s ", 'Mode:')
   "echohl Identifier
-  "echon printf("%s\n", self.title)
+  "echon printf("%s\n", s:cham.title)
 
   " mode file name
   echohl Title
   echon printf("%-14s ", 'Mode file:')
   echohl Identifier
-  echon printf("%s\n", self.mode_name)
+  echon printf("%s\n", s:cham.mode_name)
 
   " bundle manager name
   "echohl Title
   "echon printf("%-14s ", 'Manager:')
   "echohl Identifier
-  "echon printf("%s\n", self.manager.name)
+  "echon printf("%s\n", s:cham.manager.name)
 
   " long delimiter line.
   echohl Number
-  echon printf("%-3d ", len(self.meta_set))
+  echon printf("%-3d ", len(s:cham.meta_set))
   echohl Title
   echon printf("%-14s ", "Metas Enrolled")
 
@@ -384,19 +384,19 @@ function s:cham.info() dict                                                     
   endfor
 
   echohl Number
-  echon printf(" in %2d ", len(self.mode_set) + 1)
+  echon printf(" in %2d ", len(s:cham.mode_set) + 1)
   echohl Title
   echon "Mode files"
-  call self.dumpTree(self.tree, ['.'])
+  call s:cham_dump_tree(s:cham.tree, ['.'])
 
   " must have.
   echohl None
 endfunction "}}}2
 
-function s:cham.dumpTree(dict, path) dict                                         " {{{2
+function s:cham_dump_tree(dict, path)                                             " {{{2
   " arg path: a list record recursion path.
-  let max_width = max(map(self.meta_set[:], 'len(v:val)')) + 2
-  let fields = (&columns - len(self.prefix)) / max_width
+  let max_width = max(map(s:cham.meta_set[:], 'len(v:val)')) + 2
+  let fields = (&columns - len(s:cham.prefix)) / max_width
 
   " print tree path.
   echohl Title
@@ -406,11 +406,11 @@ function s:cham.dumpTree(dict, path) dict                                       
   echohl Special
 
   if empty(a:dict.metas)
-    echo self.prefix . '< empty >'
+    echo s:cham.prefix . '< empty >'
   else
     for i in range(len(a:dict.metas))
-      if i % fields == 0 | echo self.prefix | endif
-      if index(self.metas_duplicate, a:dict.metas[i]) != -1
+      if i % fields == 0 | echo s:cham.prefix | endif
+      if index(s:cham.metas_duplicate, a:dict.metas[i]) != -1
         echohl MoreMsg
       endif
       execute 'echon printf("%-' . max_width . 's", a:dict.metas[i])'
@@ -420,14 +420,14 @@ function s:cham.dumpTree(dict, path) dict                                       
 
   " print sub-modes.
   for [name, mode] in items(a:dict.modes)
-    call self.dumpTree(mode, add(a:path[:], name))
+    call s:cham_dump_tree(mode, add(a:path[:], name))
   endfor
 
   echohl None
 endfunction
 " }}}2
 
-function s:cham.editMode(arg) dict                                                " {{{2
+function s:cham_edit_mode(arg)                                                    " {{{2
   let names = split(a:arg)
   if len(names) > 2
     echoerr 'Too many arguments, at most 2 arguemnts is needed'
@@ -436,20 +436,20 @@ function s:cham.editMode(arg) dict                                              
 
   try
     if len(names) == 0 " Edit current mode.
-      let file_path = self.modes_dir . '/' . self.mode_name
+      let file_path = s:cham.modes_dir . '/' . s:cham.mode_name
       call Qpen(file_path)
     else " edit a new or existing mode.
-      let file_path = self.modes_dir . '/' . names[0]
+      let file_path = s:cham.modes_dir . '/' . names[0]
 
       if filereadable(file_path) " edit a existing file.
         call Qpen(file_path)
       else " edit a new file.
         " read template content if any.
-        if filereadable(self.mode_tmpl)
-          let tmpl = readfile(self.mode_tmpl)
+        if filereadable(s:cham.mode_tmpl)
+          let tmpl = readfile(s:cham.mode_tmpl)
         else
           echohl WarningMsg
-          echo 'Template file [' . self.mode_tmpl
+          echo 'Template file [' . s:cham.mode_tmpl
                 \ . "] unreadable"
           echo "creating an empty mode ..."
           echohl None
@@ -473,8 +473,8 @@ function s:cham.editMode(arg) dict                                              
 endfunction
 " }}}2
 
-function s:cham.editMeta(name) dict                                               " {{{2
-  let file_name = self.metas_dir . '/' . a:name
+function s:cham_edit_meta(name)                                                   " {{{2
+  let file_name = s:cham.metas_dir . '/' . a:name
 
   try
     call Qpen(file_name)
@@ -485,11 +485,11 @@ function s:cham.editMeta(name) dict                                             
 
   if !filereadable(file_name)
     " read template content
-    if filereadable(self.meta_tmpl)
-      let tmpl = readfile(self.meta_tmpl)
+    if filereadable(s:cham.meta_tmpl)
+      let tmpl = readfile(s:cham.meta_tmpl)
     else
       echohl WarningMsg
-      echo 'Mode template file [' . self.meta_tmpl . '] unreadable'
+      echo 'Mode template file [' . s:cham.meta_tmpl . '] unreadable'
       echo "creating an empty meta ..."
       echohl None
     endif
@@ -505,7 +505,7 @@ function s:cham.editMeta(name) dict                                             
     " fill with template.
     " if register + got a valid git repo address, then automatically
     " insert the shrotened address into appropriate place.
-    let repo_addr = self.peekUrl()
+    let repo_addr = s:cham_peek_url()
     if len(repo_addr) > 0
       let n = match(tmpl, 'let g:this_meta.site = " TODO:')
       let tmpl[n] = substitute(tmpl[n], '" TODO:.*$', string(repo_addr), '')
@@ -520,7 +520,7 @@ function s:cham.editMeta(name) dict                                             
 endfunction
 " }}}2
 
-function s:cham.peekUrl() dict                                                    " {{{2
+function s:cham_peek_url()                                                        " {{{2
   let url_pat = '\m\c^\%(https://\|git@\).*'
 
   for reg in [@", @+, @*, @a]
@@ -541,15 +541,15 @@ endfunction
 " INTERMEDIATE FUNCTIONS                                                            {{{1
 
 " temporary global functions used in modes/* to for mode configurations.
-" these function only survive during the only invocation of s:cham.init().
+" these function only survive during the only invocation of s:cham_init().
 
 function AddBundles(list)                                                         " {{{2
-  call s:cham.addMetas(a:list)
+  call s:cham_add_metas(a:list)
 endfunction
 " }}}2
 
 function MergeConfigs(list)                                                       " {{{2
-  call s:cham.mergeModes(a:list)
+  call s:cham_merge_modes(a:list)
 endfunction
 " }}}2
 
@@ -578,42 +578,35 @@ function mudox#chameleon#Init()                                                 
     autocmd VimEnter * PlugInstall
   endif
 
-  call s:cham.init()
+  call s:cham_init()
 endfunction " }}}2
 
 function mudox#chameleon#InitBundles()                                            " {{{2
-  call s:cham.initBundles()
+  call s:cham_init_bundles()
 endfunction " }}}2
 
 function mudox#chameleon#ModeList()                                               " {{{2
-  return s:cham.modesAvail()
+  return s:cham_modes_avail()
 endfunction "  }}}2
 
 function mudox#chameleon#MetaList()                                               " {{{2
-  return s:cham.metasAvail()
+  return s:cham_metas_avail()
 endfunction "  }}}2
 
 function mudox#chameleon#TopModeList()                                            " {{{2
-  return filter(s:cham.modesAvail(), 'v:val !~# "^x_"')
+  return filter(s:cham_modes_avail(), 'v:val !~# "^x_"')
 endfunction "  }}}2
 
 " :ChamInfo                                                                         {{{2
 command ChamInfo call mudox#chameleon#Info()
 function mudox#chameleon#Info()
-  call s:cham.info()
+  call s:cham_info()
 endfunction
 
 " }}}2
 
 " autocmd VimEnter                                                                  {{{2
 autocmd VimEnter * call <SID>OnVimEnter()
-
-function <SID>OnVimEnter()
-  let title = get(s:cham, 'title', s:cham.mode_name)
-
-  silent set title
-  let &titlestring = title
-endfunction
 
 " }}}2
 
