@@ -1,5 +1,4 @@
 
-" TODO!!!: unobjectify s:charm
 " TODO!!: DSL like vader.vim for defining meta files
 
 " GUARD                                                                             {{{1
@@ -32,6 +31,7 @@ function s:cham_init()                                                          
   endif
   lockvar s:cham.cham_dir
 
+
   let s:cham.repo_dir        = g:rc_root . '/plugged'
   lockvar s:cham.repo_dir
 
@@ -52,6 +52,10 @@ function s:cham_init()                                                          
   lockvar s:cham.mode_file_path
   lockvar g:mdx_chameleon_mode_name
   lockvar g:mdx_chameleon_cur_mode_file_path
+
+  let s:cham.metas_avail = s:cham_metas_avail()
+  lockvar s:cham.metas_avail
+
 
   " use in :ChamInfo command output.
   let s:cham.prefix          = ' └ '
@@ -162,7 +166,7 @@ function s:cham_add_metas(list)                                                 
   for name in a:list
 
     " check meta name's validity.
-    if index(s:cham_metas_avail(), name) == -1
+    if index(s:cham.metas_avail, name) == -1
       echoerr printf("Invalid meta name: [%s] required by {%s}",
             \ name, s:stack[0].name)
       continue
@@ -223,7 +227,7 @@ function s:cham_load_mode()                                                     
   let s:cursor = s:cham.tree
 
   if s:cham.mode_name ==# 'update-all'
-    let s:cham.tree.metas = filter(s:cham_metas_avail(), 'v:val !~ "@"')
+    let s:cham.tree.metas = filter(s:cham.metas_avail, 'v:val !~ "@"')
     let s:cham.meta_set = s:cham.tree.metas
     let s:cham.mode_set = ['update-all']
 
