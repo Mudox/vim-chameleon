@@ -19,7 +19,7 @@ function s:on_enter(session) " {{{2
     let selected_meta = a:session.getsel()
   endif
 
-  call g:mdx_chameleon.editMeta(selected_meta)
+  call g:ChameleonEditMeta(selected_meta)
 
   return 'quit'
 endfunction "  }}}2
@@ -49,7 +49,7 @@ endfunction "  }}}2
 
 " initialize s:full_metas_avail
 function s:init() " {{{2
-  let s:full_metas_avail = g:mdx_chameleon.metasAvail()
+  let s:full_metas_avail = g:ChameleonMetaList()
   lockvar! s:full_metas_avail
 endfunction "  }}}2
 

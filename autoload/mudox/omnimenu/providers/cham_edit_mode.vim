@@ -19,7 +19,7 @@ function s:on_enter(session) " {{{2
     let selected_mode = a:session.getsel()
   endif
 
-  call g:mdx_chameleon.editMode(selected_mode)
+  call g:ChameleonEditMode(selected_mode)
 
   return 'quit'
 endfunction "  }}}2
@@ -49,7 +49,7 @@ endfunction "  }}}2
 
 " initialize s:full_modes_avail
 function s:init() " {{{2
-  let s:full_modes_avail = g:mdx_chameleon.modesAvail()
+  let s:full_modes_avail = g:ChameleonModeList()
   lockvar! s:full_modes_avail
 endfunction "  }}}2
 

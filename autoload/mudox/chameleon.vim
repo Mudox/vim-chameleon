@@ -427,7 +427,7 @@ function s:cham_dump_tree(dict, path)                                           
 endfunction
 " }}}2
 
-function s:cham_edit_mode(arg)                                                    " {{{2
+function g:ChameleonEditMode(arg)                                                 " {{{2
   let names = split(a:arg)
   if len(names) > 2
     echoerr 'Too many arguments, at most 2 arguemnts is needed'
@@ -473,7 +473,7 @@ function s:cham_edit_mode(arg)                                                  
 endfunction
 " }}}2
 
-function s:cham_edit_meta(name)                                                   " {{{2
+function g:ChameleonEditMeta(name)                                                " {{{2
   let file_name = s:cham.metas_dir . '/' . a:name
 
   try
@@ -585,13 +585,8 @@ function mudox#chameleon#InitBundles()                                          
   call s:cham_init_bundles()
 endfunction " }}}2
 
-function mudox#chameleon#ModeList()                                               " {{{2
-  return s:cham_modes_avail()
-endfunction "  }}}2
-
-function mudox#chameleon#MetaList()                                               " {{{2
-  return s:cham_metas_avail()
-endfunction "  }}}2
+let ChameleonModeList = function('s:cham_modes_avail')
+let ChameleonMetaList = function('s:cham_metas_avail')
 
 function mudox#chameleon#TopModeList()                                            " {{{2
   return filter(s:cham_modes_avail(), 'v:val !~# "^x_"')
@@ -604,9 +599,6 @@ function mudox#chameleon#Info()
 endfunction
 
 " }}}2
-
-" autocmd VimEnter                                                                  {{{2
-autocmd VimEnter * call <SID>OnVimEnter()
 
 " }}}2
 
