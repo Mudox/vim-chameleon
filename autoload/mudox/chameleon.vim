@@ -227,7 +227,7 @@ function s:cham_load_mode()                                                     
     let s:cham.meta_set = s:cham.tree.metas
     let s:cham.mode_set = ['update-all']
 
-    augroup Mdx_Chameleon_Udpate_All
+    augroup Mdx_Chameleon_Update_All
       autocmd!
       autocmd VimEnter * PlugUpgrade | PlugUpdate | wincmd o
             \| autocmd! Mdx_Chameleon_Udpate_All
@@ -427,6 +427,55 @@ function s:cham_dump_tree(dict, path)                                           
 endfunction
 " }}}2
 
+function s:cham_peek_url()                                                        " {{{2
+  let url_pat = '\m\c^\%(https://\|git@\).*'
+
+  for reg in [@", @+, @*, @a]
+    let url = matchstr(reg, url_pat)
+    if !empty(url)
+      break
+    endif
+  endfor
+
+  let g:parsed_url = url
+
+  " will returns an empty string if parsing failed.
+  return url
+endfunction
+" }}}2
+
+" }}}1
+
+" INTERMEDIATE FUNCTIONS                                                            {{{1
+
+" temporary global functions used in modes/* to for mode configurations.
+" these function only survive during the only invocation of s:cham_init().
+
+function AddBundles(list)                                                         " {{{2
+  call s:cham_add_metas(a:list)
+endfunction
+" }}}2
+
+function MergeConfigs(list)                                                       " {{{2
+  call s:cham_merge_modes(a:list)
+endfunction
+" }}}2
+
+function SetTitle(name)                                                           " {{{2
+  " only top level config file can call this function.
+  if !empty(s:cham.title)
+    return
+  endif
+
+  let s:cham.title = a:name
+  lockvar s:cham.title
+endfunction
+" }}}2
+
+"}}}1
+
+" PUBLIC INTERFACES                                                                 {{{1
+
 function g:ChameleonEditMode(arg)                                                 " {{{2
   let names = split(a:arg)
   if len(names) > 2
@@ -520,54 +569,6 @@ function g:ChameleonEditMeta(name)                                              
 endfunction
 " }}}2
 
-function s:cham_peek_url()                                                        " {{{2
-  let url_pat = '\m\c^\%(https://\|git@\).*'
-
-  for reg in [@", @+, @*, @a]
-    let url = matchstr(reg, url_pat)
-    if !empty(url)
-      break
-    endif
-  endfor
-
-  let g:parsed_url = url
-
-  " will returns an empty string if parsing failed.
-  return url
-endfunction
-" }}}2
-" }}}1
-
-" INTERMEDIATE FUNCTIONS                                                            {{{1
-
-" temporary global functions used in modes/* to for mode configurations.
-" these function only survive during the only invocation of s:cham_init().
-
-function AddBundles(list)                                                         " {{{2
-  call s:cham_add_metas(a:list)
-endfunction
-" }}}2
-
-function MergeConfigs(list)                                                       " {{{2
-  call s:cham_merge_modes(a:list)
-endfunction
-" }}}2
-
-function SetTitle(name)                                                           " {{{2
-  " only top level config file can call this function.
-  if !empty(s:cham.title)
-    return
-  endif
-
-  let s:cham.title = a:name
-  lockvar s:cham.title
-endfunction
-" }}}2
-
-"}}}1
-
-" PUBLIC INTERFACES                                                                 {{{1
-
 function mudox#chameleon#Init()                                                   " {{{2
   " try to download & install Vim-Plug if not.
   " for bootstrapping.
@@ -603,5 +604,4 @@ endfunction
 " }}}2
 
 let g:mdx_chameleon = s:cham
-
 "}}}1
