@@ -1,4 +1,6 @@
 " vim: foldmethod=marker
+" TODO!!!: unobjectify s:charm
+" TODO!!: DSL like vader.vim for defining meta files
 
 " GUARD                                                                             {{{1
 if exists("s:loaded") || &cp || version < 700
