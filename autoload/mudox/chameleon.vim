@@ -227,14 +227,14 @@ function s:cham_load_mode()                                                     
   let s:cursor = s:cham.tree
 
   if s:cham.mode_name ==# 'update-all'
-    let s:cham.tree.metas = filter(s:cham.metas_avail, 'v:val !~ "@"')
+    let s:cham.tree.metas = filter(copy(s:cham.metas_avail), 'v:val !~ "@"')
     let s:cham.meta_set = s:cham.tree.metas
     let s:cham.mode_set = ['update-all']
 
     augroup Mdx_Chameleon_Update_All
       autocmd!
       autocmd VimEnter * PlugUpgrade | PlugUpdate | wincmd o
-            \| autocmd! Mdx_Chameleon_Udpate_All
+            \| autocmd! Mdx_Chameleon_Update_All
     augroup END
 
     return
